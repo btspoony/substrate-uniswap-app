@@ -9,7 +9,7 @@ Vue.use(Element, { locale, size: 'small' })
 /**
  * 导入css
  */
-export default async ({ app, store, redirect, error }) => {
+export default async (context, inject) => {
   // 导入项目 scss
   await import('~/assets/scss/index.scss')
 }

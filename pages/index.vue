@@ -1,6 +1,5 @@
 <template>
   <div>
-    <NuxtLogo />
     <h1 class="title">
       uniswap-app
     </h1>
@@ -8,7 +7,10 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
+import { Vue, Component, Prop } from 'vue-property-decorator'
 
-export default Vue.extend({})
+@Component
+export default class IndexComponent extends Vue {
+  // TODO
+}
 </script>

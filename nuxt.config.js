@@ -61,7 +61,8 @@ export default {
   ** https://nuxtjs.org/guide/plugins
   */
   plugins: [
-    '@/plugins/element-ui'
+    '@/plugins/element-ui.js',
+    '@/plugins/substrate'
   ],
   /*
   ** Auto import components

@@ -11,8 +11,13 @@
   "dependencies": {
     "@nuxt/typescript-runtime": "^1.0.0",
     "@nuxtjs/axios": "^5.12.2",
+    "@polkadot/api": "^1.33.1",
+    "@polkadot/ui-keyring": "^0.58.1",
+    "@polkadot/vue-identicon": "^0.58.1",
     "element-ui": "^2.13.2",
-    "nuxt": "^2.14.0"
+    "nuxt": "^2.14.0",
+    "vue-class-component": "^7.2.5",
+    "vue-property-decorator": "^9.0.0"
   },
   "devDependencies": {
     "@nuxt/types": "^2.14.0",
