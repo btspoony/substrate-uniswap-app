@@ -1,0 +1,38 @@
+{
+  "name": "substrate-uniswap-app",
+  "version": "0.1.0",
+  "description": "Demo app for substrate uniswap",
+  "scripts": {
+    "dev": "nuxt-ts",
+    "build": "nuxt-ts build",
+    "start": "nuxt-ts start",
+    "generate": "nuxt-ts generate"
+  },
+  "dependencies": {
+    "@nuxt/typescript-runtime": "^1.0.0",
+    "element-ui": "^2.13.2",
+    "nuxt": "^2.14.0"
+  },
+  "devDependencies": {
+    "@nuxt/types": "^2.14.0",
+    "@nuxt/typescript-build": "^2.0.2",
+    "node-sass": "^4.14.1",
+    "sass-loader": "^10.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/btspoony/substrate-uniswap-app.git"
+  },
+  "keywords": [
+    "Substrate",
+    "Nuxt",
+    "Vue",
+    "Polkadot.js"
+  ],
+  "author": "Tang BoHao",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/btspoony/substrate-uniswap-app/issues"
+  },
+  "homepage": "https://github.com/btspoony/substrate-uniswap-app#readme"
+}

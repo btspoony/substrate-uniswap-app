@@ -1,0 +1,43 @@
+/* Font
+-------------------------- */
+$font-family:
+  Roboto, Helvetica, Arial, // 英文字体，顺序降级
+  "PingFang SC","Microsoft Yahei", "微软雅黑", "WenQuanYi Micro Hei", // 中文字体，Mac/Win/Linux 系统
+  system-ui, -apple-system, BlinkMacSystemFont, segoe ui, // 各个其他系统的兼容字体
+  sans-serif, apple color emoji, segoe ui emoji, segoe ui symbol;  // 兜底和 Emoji 字体
+$code-family: Consolas,Menlo,Courier,monospace;
+
+/* Size
+-------------------------- */
+// In using
+$content-gap-default: 24px;
+
+$font-size-base: 14px;
+$font-size-small: 12px;
+
+/* Media queries breakpoints
+-------------------------- */
+// Extra small screen / phone
+$screen-xxs: 480px;
+// Small screen / tablet
+$screen-xs: 768px;
+// Medium screen / desktop small
+$screen-sm: 992px;
+// Medium screen / desktop middle
+$screen-md: 1280px;
+// X-Large screen / super wide desktop
+$screen-xxl: 1920px;
+
+/* Color
+-------------------------- */
+// TODO
+
+/* Shadow
+-------------------------- */
+$shadow-color: rgba(0, 0, 0, 0.75);
+$box-shadow-base: 3px 3px 2px $shadow-color;
+$box-shadow-dark: 4px 4px 3px $shadow-color;
+$box-shadow-left: -3px 3px 2px $shadow-color;
+$box-shadow-top: 0px -3px 2px $shadow-color;
+$box-shadow-bottom: 0px 3px 2px $shadow-color;
+$text-shadow-base: 1px 2px 2px $shadow-color;

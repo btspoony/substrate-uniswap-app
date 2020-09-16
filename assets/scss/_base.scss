@@ -1,0 +1,87 @@
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+html {
+	direction: ltr;
+	overflow-x: hidden;
+	box-shadow: none !important;
+}
+
+html, body {
+  position: relative;
+  height: 100%;
+}
+
+html body {
+  font-family: $font-family;
+  font-size: $font-size-base;
+  line-height: 22px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-stretch: normal;
+  font-style: normal;
+  letter-spacing: normal;
+
+  /* Responsive */
+  @media (max-width: $screen-xs - 1px) {
+    font-size: $font-size-base;
+    // font-size: $font-size-small;
+  }
+}
+
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,form,fieldset,legend,input,textarea,p,blockquote,th,td,hr,button,article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section {
+  margin: 0;
+  padding: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+ul,
+ol {
+  list-style: none;
+
+  li {
+    line-height: 24px;
+  }
+}
+
+input::-ms-clear,
+input::-ms-reveal {
+  display: none;
+}
+
+a {
+  text-shadow: none;
+  text-transform: none;
+  text-decoration: none;
+  outline: none !important;
+  cursor: pointer;
+  &:active, &:hover {
+    text-decoration: none;
+  }
+  &[disabled] {
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: $code-family;
+}
