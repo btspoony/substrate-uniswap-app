@@ -1,2 +1,3 @@
 # substrate-uniswap-app
-Demo App for substrate-uniswap
+
+This is the demo App for [substrate-uniswap](https://github.com/alexxuyang/substrate-uniswap)
