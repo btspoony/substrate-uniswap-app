@@ -1,6 +1,14 @@
+const pkg = require('./package')
 
 export default {
   ssr: false,
+  /**
+   * 环境变量
+   */
+  env: {
+    NODE_URL: 'ws://127.0.0.1:9944',
+    VERSION: process.env.npm_package_version || pkg.version
+  },
   /*
   ** Nuxt target
   ** See https://nuxtjs.org/api/configuration-target
@@ -24,14 +32,14 @@ export default {
   /**
    ** Customize the progress bar color
    */
-  loading: { color: '#6C66FF' },
+  loading: { color: '#1ACBE6' },
   /**
    * SPA时的Loading
    */
   loadingIndicator: {
     name: 'rectangle-bounce',
-    color: '#6C66FF',
-    background: '#F7F8FB'
+    color: '#1ACBE6',
+    background: '#FFFFFF'
   },
   /**
    * transition
@@ -46,7 +54,7 @@ export default {
   ** Global CSS
   */
   css: [
-    'element-ui/lib/theme-chalk/index.css'
+    // 加载第三方 css
   ],
   /*
   ** Plugins to load before mounting the App
@@ -70,7 +78,14 @@ export default {
   ** Nuxt.js modules
   */
   modules: [
+    '@nuxtjs/axios'
   ],
+  /**
+   * axios config
+   */
+  axios: {
+    // proxyHeaders: false
+  },
   /*
   ** Build configuration
   ** See https://nuxtjs.org/api/configuration-build/
