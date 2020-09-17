@@ -1,5 +1,6 @@
 
 import { ApiPromise } from '@polkadot/api'
+import { Callback, ISubmittableResult } from '@polkadot/types/types'
 
 declare module 'vue/types/vue' {
   // this.$api inside Vue components
@@ -27,5 +28,6 @@ declare module 'vuex/types/index' {
   interface Store<S> {
     $api: ApiPromise
     $ensureApiConnected():  Promise<boolean>
+    $txSendingCallback: (handlerFunc?: Callback<ISubmittableResult>) => Callback<ISubmittableResult>
   }
 }

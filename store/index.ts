@@ -28,13 +28,20 @@ export const actions: ActionTree<RootState, RootState> = {
   /**
    * 获取全部用户和其私钥
    */
-  async queryAllUsers ({ commit }) {
+  async queryAllUsers (ctx) {
     await this.$ensureApiConnected()
     keyring.loadAll({ isDevelopment: true })
     const pairs = keyring.getPairs()
     if (pairs.length > 0) {
-      commit('SETUP_AVAILABLE_USERS', pairs.map(one => new User(one)))
-      commit('SET_CURRENT_USER', 0)
+      ctx.commit('SETUP_AVAILABLE_USERS', pairs.map(one => new User(one)))
+      ctx.commit('SET_CURRENT_USER', 0)
     }
+  },
+  /**
+   * 当交易发出时记录
+   */
+  transactionSent (ctx, payload: { hash: string }) {
+    // TODO
+    console.log('hash online:', payload.hash)
   }
 }

@@ -1,6 +1,7 @@
 import { GetterTree, ActionTree, MutationTree } from 'vuex'
+import { TextEncoder } from 'text-encoding'
 import { RootState } from '~/store'
-import { Token } from '~/types'
+import { Token, User } from '~/types'
 
 export const state = () => ({
   tokens: [] as Token[]
@@ -31,14 +32,23 @@ export const actions: ActionTree<ModuleState, RootState> = {
    */
   async createNewToken (ctx, payload: { name: string, supply: number }) {
     await this.$ensureApiConnected()
-    // TODO
+    const u8array = new TextEncoder().encode(payload.name)
+    // 构建交易
+    const extrinsic = this.$api.tx.tokenModule.issue(u8array, payload.supply)
+    // 交易签名并发送
+    const keypair = (ctx.getters['currentUser'] as User)?.keypair
+    await extrinsic.signAndSend(keypair, this.$txSendingCallback())
   },
   /**
    * 代币转账
    * 由 持币人 执行
    */
-  async transferToken (ctx, payload: { to: string, amount: number }) {
+  async transferToken (ctx, payload: { tokenHash: string, to: string, amount: number }) {
     await this.$ensureApiConnected()
-    // TODO
+    // 构建交易
+    const extrinsic = this.$api.tx.tokenModule.transfer(payload.tokenHash, payload.to, payload.amount)
+    // 交易签名并发送
+    const keypair = (ctx.getters['currentUser'] as User)?.keypair
+    await extrinsic.signAndSend(keypair, this.$txSendingCallback())
   }
 }

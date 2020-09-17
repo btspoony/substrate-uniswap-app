@@ -1,5 +1,6 @@
 import { Plugin } from '@nuxt/types'
 import { ApiPromise, WsProvider } from '@polkadot/api'
+import { Callback, ISubmittableResult } from '@polkadot/types/types'
 import { types } from '~/types/substrate'
 
 /**
@@ -17,7 +18,9 @@ const substratePlugin: Plugin = async (context, inject) => {
     api.on('disconnected', () => console.log(`node disconnected!!!`))
     return api
   })
+  // 注入 API 实例
   inject('api', api)
+  // 通用验证连接性
   inject('ensureApiConnected', async () => {
     if (!api.isConnected) {
       api = api.clone()
@@ -25,6 +28,22 @@ const substratePlugin: Plugin = async (context, inject) => {
       inject('api', api)
     }
     return api.isConnected
+  })
+  // 通用交易发送回调
+  inject('txSendingCallback', (handlerFunc?: Callback<ISubmittableResult>) => {
+    return async (result: ISubmittableResult) => {
+      if (result.isInBlock) {
+        const txHash = result.status.asInBlock.toHex()
+        // 记录 hash
+        await context.store.dispatch('transactionSent', { hash: txHash })
+      } else {
+        console.log('Status of extrinsic: ' + result.status.type)
+      }
+      // 可选执行
+      if (handlerFunc !== undefined) {
+        await handlerFunc(result)
+      }
+    }
   })
 }
 export default substratePlugin
