@@ -7,7 +7,7 @@ import { types } from '~/types/substrate'
  */
 const substratePlugin: Plugin = async (context, inject) => {
   const providerUrl = context.env.NODE_URL || 'ws://127.0.0.1:9944'
-  const api = await ApiPromise.create({
+  let api = await ApiPromise.create({
     provider: new WsProvider(providerUrl),
     types
   }).then(api => {
@@ -18,5 +18,13 @@ const substratePlugin: Plugin = async (context, inject) => {
     return api
   })
   inject('api', api)
+  inject('ensureApiConnected', async () => {
+    if (!api.isConnected) {
+      api = api.clone()
+      await api.isReadyOrError
+      inject('api', api)
+    }
+    return api.isConnected
+  })
 }
 export default substratePlugin

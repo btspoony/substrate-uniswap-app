@@ -20,7 +20,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
    * 获取全部用户和其私钥
    */
   async queryAllTokens (ctx) {
-    if (!this.$api.isConnected) throw new Error('Node is not connected.')
+    await this.$ensureApiConnected()
     let tokens: Token[] = []
     // TODO 需要请求 substrate 获取 tokens
     ctx.commit('SETUP_ALL_TOKENS', tokens)
@@ -30,7 +30,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
    * 由 管理员 执行
    */
   async createNewToken (ctx, payload: { name: string, supply: number }) {
-    if (!this.$api.isConnected) throw new Error('Node is not connected.')
+    await this.$ensureApiConnected()
     // TODO
   },
   /**
@@ -38,7 +38,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
    * 由 持币人 执行
    */
   async transferToken (ctx, payload: { to: string, amount: number }) {
-    if (!this.$api.isConnected) throw new Error('Node is not connected.')
+    await this.$ensureApiConnected()
     // TODO
   }
 }

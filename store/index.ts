@@ -29,7 +29,7 @@ export const actions: ActionTree<RootState, RootState> = {
    * 获取全部用户和其私钥
    */
   async queryAllUsers ({ commit }) {
-    await this.$api.isReady
+    await this.$ensureApiConnected()
     keyring.loadAll({ isDevelopment: true })
     const pairs = keyring.getPairs()
     if (pairs.length > 0) {

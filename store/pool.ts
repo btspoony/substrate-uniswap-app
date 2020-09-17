@@ -29,7 +29,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
    * 查询全部交易对
    */
   async queryTradePairs (ctx) {
-    if (!this.$api.isConnected) throw new Error('Node is not connected.')
+    await this.$ensureApiConnected()
     let all: TradePair[] = []
     // TODO 需要请求 substrate 获取 tokens
     ctx.commit('SETUP_ALL_TRADE_PAIRS', all)
@@ -39,7 +39,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
    * 由 管理员 执行
    */
   async createNewTradePair (ctx, payload: any) {
-    if (!this.$api.isConnected) throw new Error('Node is not connected.')
+    await this.$ensureApiConnected()
     // TODO
   },
   /**
@@ -47,7 +47,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
    * 由 持币人 执行
    */
   async addLiquidityToTradePair (ctx, payload: any) {
-    if (!this.$api.isConnected) throw new Error('Node is not connected.')
+    await this.$ensureApiConnected()
     // TODO
   },
   /**
@@ -55,7 +55,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
    * 由 流动性供应商 执行
    */
   async removeLiquidityFromTradePair (ctx, payload: any) {
-    if (!this.$api.isConnected) throw new Error('Node is not connected.')
+    await this.$ensureApiConnected()
     // TODO
   },
   /**
@@ -63,7 +63,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
    * 由 持币人 执行
    */
   async buyTokenInTradePair (ctx, payload: any) {
-    if (!this.$api.isConnected) throw new Error('Node is not connected.')
+    await this.$ensureApiConnected()
     // TODO
   },
   /**
@@ -71,7 +71,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
    * 由 持币人 执行
    */
   async sellTokenInTradePair (ctx, payload: any) {
-    if (!this.$api.isConnected) throw new Error('Node is not connected.')
+    await this.$ensureApiConnected()
     // TODO
   }
 }
