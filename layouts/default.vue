@@ -1,12 +1,14 @@
 <template>
-  <el-container>
-    <!-- 通用头 -->
-    <el-header><Header /></el-header>
-    <!-- 内容体 -->
-    <el-main><Nuxt /></el-main>
+  <div class="app-main-layout">
+    <el-container>
+      <!-- 通用头 -->
+      <el-header><Header /></el-header>
+      <!-- 内容体 -->
+      <el-main><Nuxt /></el-main>
+    </el-container>
     <!-- 侧边菜单 -->
     <SideMenu />
-  </el-container>
+  </div>
 </template>
 
 <script lang="ts">
@@ -17,14 +19,11 @@ import { Vue, Component } from 'vue-property-decorator'
     return {
       title: 'Uniswap Demo'
     }
-  },
-  async fetch (ctx) {
-    await ctx.store.dispatch('queryAllUsers')
   }
 })
 export default class LayoutComponent extends Vue {
   async mounted () {
-    // NOTHING
+    await this.$store.dispatch('queryAllUsers')
   }
 }
 </script>

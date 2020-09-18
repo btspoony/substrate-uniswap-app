@@ -13,6 +13,7 @@
     "@nuxtjs/axios": "^5.12.2",
     "@polkadot/api": "^1.33.1",
     "@polkadot/ui-keyring": "^0.58.1",
+    "@polkadot/ui-settings": "^0.58.1",
     "@polkadot/vue-identicon": "^0.58.1",
     "element-ui": "^2.13.2",
     "nuxt": "^2.14.0",

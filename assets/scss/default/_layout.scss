@@ -1,0 +1,9 @@
+// 主要布局
+.app-main-layout {
+  @include self-center;
+  overflow-x: hidden !important;
+  padding: 0px;
+
+  min-width: $screen-xxs;
+  max-width: $screen-xs;
+}

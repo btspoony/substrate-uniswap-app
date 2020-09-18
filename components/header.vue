@@ -1,7 +1,15 @@
 <template>
-  <div>
-    Header
-  </div>
+  <el-row :gutter="12">
+    <el-col :span="4">
+      <!-- Menu Toggle -->
+    </el-col>
+    <el-col :span="16">
+      <!-- Center Address -->
+    </el-col>
+    <el-col :span="4">
+      <!-- UserIcon -->
+    </el-col>
+  </el-row>
 </template>
 
 <script lang="ts">
