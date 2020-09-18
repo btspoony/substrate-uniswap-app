@@ -13,7 +13,7 @@
       ></el-button>
     </el-col>
     <el-col :span="18">
-      <h2 class="ellipsis-word">{{ currentUser.address }}</h2>
+      <h2 class="ellipsis-word">{{ currentUser ? currentUser.address : 'No User' }}</h2>
     </el-col>
     <el-col :span="3">
       <el-dropdown
@@ -23,7 +23,7 @@
           class="mt-4-1 cursor-pointer"
           theme="polkadot"
           :size="40"
-          :value="currentUser.address"
+          :value="currentUser ? currentUser.address : '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'"
         />
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item
