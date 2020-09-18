@@ -4,9 +4,22 @@
     :with-header="false"
     :visible.sync="isOpened"
   >
-    <div class="app-side-menu">
-      这里是Menu内容
-    </div>
+    <el-menu
+      class="app-side-menu"
+      default-active="tokens"
+      :unique-opened="true"
+      :router="true"
+      @select="menuSelected"
+    >
+      <el-menu-item index="tokens">
+        <i class="el-icon-s-finance"></i>
+        <span slot="title">Tokens</span>
+      </el-menu-item>
+      <el-menu-item index="trading">
+        <i class="el-icon-s-marketing"></i>
+        <span slot="title">Trading</span>
+      </el-menu-item>
+    </el-menu>
   </el-drawer>
 </template>
 
@@ -27,5 +40,11 @@ export default class SideMenuComponent extends Vue {
     // NOTHING
   }
   // ---- Methods --
+  /**
+   * 菜单选择，关闭 menu
+   */
+  menuSelected () {
+    this.isOpened = false
+  }
 }
 </script>

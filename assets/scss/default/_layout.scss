@@ -9,11 +9,17 @@
 }
 
 .app-header {
-  line-height: 60px;
-
+  // 总 height 为 60px
+  padding-top: 6px;
+  padding-bottom: 6px;
   box-shadow: $box-shadow-base;
+
+  h2 {
+    line-height: 48px;
+  }
 }
 
 .app-side-menu {
-  background-color: $color-background-base;
+  height: 100%;
+  width: 100%;
 }
