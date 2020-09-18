@@ -1,14 +1,25 @@
 <template>
-  <Nuxt />
+  <el-container>
+    <!-- 通用头 -->
+    <el-header><Header /></el-header>
+    <!-- 内容体 -->
+    <el-main><Nuxt /></el-main>
+    <!-- 侧边菜单 -->
+    <SideMenu />
+  </el-container>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 
-@Component
+@Component({
+  async fetch(ctx) {
+    await ctx.store.dispatch('queryAllUsers')
+  }
+})
 export default class LayoutComponent extends Vue {
   async mounted () {
-    await this.$store.dispatch('queryAllUsers')
+    // NOTHING
   }
 }
 </script>
