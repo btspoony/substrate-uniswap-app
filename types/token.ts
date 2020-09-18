@@ -13,3 +13,9 @@ export const TokenDef = {
   symbol: 'Vec<u8>',
   total_supply: 'Balance'
 }
+
+export type TokenBalances = {
+  all: Balance
+  free: Balance
+  frozen: Balance
+}

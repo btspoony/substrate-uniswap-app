@@ -1,7 +1,7 @@
 import { GetterTree, ActionTree, MutationTree } from 'vuex'
 import { TextEncoder } from 'text-encoding'
 import { RootState } from '~/store'
-import { Token, User } from '~/types'
+import { User, Token, TokenBalances } from '~/types'
 
 export const state = () => ({
   tokens: [] as Token[]
@@ -50,5 +50,22 @@ export const actions: ActionTree<ModuleState, RootState> = {
     // 交易签名并发送
     const keypair = (ctx.getters['currentUser'] as User)?.keypair
     await extrinsic.signAndSend(keypair, this.$txSendingCallback())
+  },
+  /**
+   * 查询代币余额
+   */
+  async queryTokenBalance (ctx, payload: { tokenHash: string, address: string }) {
+    await this.$ensureApiConnected()
+    // 查询代币
+    const results = await Promise.all([
+      this.$api.query.tokenModule.balanceOf(payload.address, payload.tokenHash),
+      this.$api.query.tokenModule.freeBalanceOf(payload.address, payload.tokenHash),
+      this.$api.query.tokenModule.freezedBalanceOf(payload.address, payload.tokenHash)
+    ])
+    return {
+      all: results[0],
+      free: results[1],
+      frozen: results[2]
+    } as TokenBalances
   }
 }
