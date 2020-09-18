@@ -1,10 +1,12 @@
 <template>
   <el-drawer
-    title="Menu"
     direction="ltr"
+    :with-header="false"
     :visible.sync="isOpened"
   >
-    这里是Menu内容
+    <div class="app-side-menu">
+      这里是Menu内容
+    </div>
   </el-drawer>
 </template>
 
@@ -18,11 +20,12 @@ export default class SideMenuComponent extends Vue {
     return this.$store.getters['app/isSideMenuOpened'] as boolean
   }
   set isOpened (value: boolean) {
-    this.$store.commit('SET_SIDE_MENU_OPENED', value)
+    this.$store.commit('app/SET_SIDE_MENU_OPENED', value)
   }
-  // ---- Methods --
+  // ---- Hooks --
   async mounted () {
     // NOTHING
   }
+  // ---- Methods --
 }
 </script>

@@ -7,3 +7,13 @@
   min-width: $screen-xxs;
   max-width: $screen-xs;
 }
+
+.app-header {
+  line-height: 60px;
+
+  box-shadow: $box-shadow-base;
+}
+
+.app-side-menu {
+  background-color: $color-background-base;
+}
