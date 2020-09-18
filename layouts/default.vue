@@ -13,7 +13,12 @@
 import { Vue, Component } from 'vue-property-decorator'
 
 @Component({
-  async fetch(ctx) {
+  head () {
+    return {
+      title: 'Uniswap Demo'
+    }
+  },
+  async fetch (ctx) {
     await ctx.store.dispatch('queryAllUsers')
   }
 })

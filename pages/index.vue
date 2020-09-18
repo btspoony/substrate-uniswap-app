@@ -1,18 +1,11 @@
-<template>
-  <div>
-    <h1 class="title">
-      uniswap-app
-    </h1>
-  </div>
-</template>
-
 <script lang="ts">
-import { Vue, Component, Prop } from 'vue-property-decorator'
+import { Vue, Component } from 'vue-property-decorator'
 
-@Component
-export default class IndexComponent extends Vue {
-  mounted () {
-    // nothing
+@Component({
+  render: createElement => createElement('div'),
+  middleware (ctx) {
+    ctx.redirect('/tokens')
   }
-}
+})
+export default class IndexComponent extends Vue {}
 </script>
