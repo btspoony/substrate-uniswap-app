@@ -15,7 +15,7 @@ import { User } from '~/types'
 @Component({
   components: { Identicon }
 })
-export default class HeaderComponent extends Vue {
+export default class CurrentUserComponent extends Vue {
   // ---- Computed --
   get currentUser () {
     return this.$store.getters['currentUser'] as User

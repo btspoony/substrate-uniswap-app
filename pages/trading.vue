@@ -1,5 +1,6 @@
 <template>
   <div>
+    <CurrentUserHeader />
     Trading Page
   </div>
 </template>

@@ -1,13 +1,6 @@
 <template>
   <div>
-    <el-row v-if="currentUser">
-      <el-col :span="4" class="align-center">
-        <CurrentUser />
-      </el-col>
-      <el-col :span="20" style="line-height: 50px">
-        <h1>{{ currentUser.keypair && currentUser.keypair.meta ? currentUser.keypair.meta.name : currentUser.address }}</h1>
-      </el-col>
-    </el-row>
+    <CurrentUserHeader />
     <el-tabs
       v-show="currentUser"
       v-model="activeTab"
