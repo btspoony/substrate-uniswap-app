@@ -32,12 +32,17 @@ const substratePlugin: Plugin = async (context, inject) => {
   // 通用交易发送回调
   inject('txSendingCallback', (handlerFunc?: Callback<ISubmittableResult>) => {
     return async (result: ISubmittableResult) => {
-      if (result.isInBlock) {
-        const txHash = result.status.asInBlock.toHex()
-        // 记录 hash
-        await context.store.dispatch('transactionSent', { hash: txHash })
+      const { status, events, isInBlock, isFinalized } = result
+      if (isInBlock) {
+        const txHash = status.asInBlock.toHex()
+        // 回调 hash
+        await context.store.dispatch('transactionSent', { hash: txHash, events })
+      } else if (isFinalized) {
+        const txHash = status.asFinalized.toHex()
+        // 回调 hash
+        await context.store.dispatch('transactionFinalized', { hash: txHash, events })
       } else {
-        console.log('Status of extrinsic: ' + result.status.type)
+        console.log('Status of extrinsic: ' + status.type)
       }
       // 可选执行
       if (handlerFunc !== undefined) {

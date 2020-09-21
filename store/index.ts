@@ -1,5 +1,6 @@
 import { GetterTree, ActionTree, MutationTree } from 'vuex'
 import keyring from '@polkadot/ui-keyring'
+import { EventRecord } from '@polkadot/types/interfaces/system'
 import { User } from '~/types'
 
 export const state = () => ({
@@ -38,10 +39,15 @@ export const actions: ActionTree<RootState, RootState> = {
     }
   },
   /**
-   * 当交易发出时记录
+   * 当交易发出并上区块后回调
    */
-  transactionSent (ctx, payload: { hash: string }) {
-    // TODO
-    console.log('hash online:', payload.hash)
+  transactionSent (ctx, payload: { hash: string, events: EventRecord[] }) {
+    console.log('hash online:', payload.hash, payload.events)
+  },
+  /**
+   * 交易完成时回调
+   */
+  transactionFinalized (ctx, payload: { hash: string, events: EventRecord[] }) {
+    console.log('hash finalized:', payload.hash, payload.events)
   }
 }

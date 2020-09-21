@@ -4,7 +4,8 @@ import { RootState } from '~/store'
 import { User, Token, TokenBalances } from '~/types'
 
 export const state = () => ({
-  tokens: [] as Token[]
+  tokens: [] as Token[],
+  tokenLength: -1
 })
 
 export type ModuleState = ReturnType<typeof state>
@@ -13,7 +14,8 @@ export const getters: GetterTree<ModuleState, RootState> = {
 }
 
 export const mutations: MutationTree<ModuleState> = {
-  SETUP_ALL_TOKENS: (state, tokens: Token[]) => (state.tokens = tokens)
+  SETUP_ALL_TOKENS: (state, payload: Token[]) => (state.tokens = payload),
+  SET_TOKENS_LENGTH: (state, payload: number) => (state.tokenLength = payload)
 }
 
 export const actions: ActionTree<ModuleState, RootState> = {
@@ -23,21 +25,33 @@ export const actions: ActionTree<ModuleState, RootState> = {
   async queryAllTokens (ctx) {
     await this.$ensureApiConnected()
     let tokens: Token[] = []
+    // 从 0 ~ length index 一路查过去
     // TODO 需要请求 substrate 获取 tokens
     ctx.commit('SETUP_ALL_TOKENS', tokens)
+  },
+  async fetchTokenLengthIndex (ctx) {
+    await this.$ensureApiConnected()
+    // TODO
+    const len = 0
+    ctx.commit('SET_TOKENS_LENGTH', len)
   },
   /**
    * 创建新代币
    * 由 管理员 执行
    */
-  async createNewToken (ctx, payload: { name: string, supply: number }) {
+  async createNewToken (ctx, payload: { symbol: string, supply: number }) {
     await this.$ensureApiConnected()
-    const u8array = new TextEncoder().encode(payload.name)
+    const u8array = new TextEncoder().encode(payload.symbol)
     // 构建交易
     const extrinsic = this.$api.tx.tokenModule.issue(u8array, payload.supply)
     // 交易签名并发送
     const keypair = (ctx.getters['currentUser'] as User)?.keypair
-    await extrinsic.signAndSend(keypair, this.$txSendingCallback())
+    await extrinsic.signAndSend(keypair, this.$txSendingCallback(async result => {
+      // 当 finalized 时，获取最新的 token length
+      if (result.isFinalized) {
+        await ctx.dispatch('fetchTokenLengthIndex')
+      }
+    }))
   },
   /**
    * 代币转账
