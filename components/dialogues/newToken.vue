@@ -10,9 +10,10 @@
     >
       <el-form-item
         label="Symbol"
+        prop="symbol"
         :rules="[
           { required: true, message: 'Please input symbol.', trigger: 'blur' },
-          { min: 3, max: 5, message: 'Symbol should be 3 ~ 5 length.', trigger: 'blur' }
+          { min: 3, max: 5, message: 'Symbol should be 3 ~ 5 length.', trigger: 'change' }
         ]"
       >
         <el-input
@@ -22,8 +23,9 @@
       </el-form-item>
       <el-form-item
         label="TotalSupply"
+        prop="totalSupply"
         :rules="[
-          { required: true, message: 'Please input total supply.', trigger: 'blur' }
+          { required: true, type: 'number', message: 'Please input total supply.', trigger: 'change' }
         ]"
       >
         <el-input-number
@@ -64,9 +66,14 @@ export default class NewTokenDialogueComponent extends Vue {
   }
   // ---- Methods --
   async onTryConfirm () {
+    const form = this.$refs['form'] as any
+    const isOk = await form.validate()
+    if (!isOk) return
+    // 验证通过，调用请求
     try {
       await this.$store.dispatch('tokens/createNewToken', this.dialogData)
     } catch (err) { console.error(err) }
+    form.clearValidate()
     this.visible = false
   }
 }

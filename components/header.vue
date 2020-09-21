@@ -17,14 +17,10 @@
     </el-col>
     <el-col :span="3">
       <el-dropdown
+        class="cursor-pointer"
         @command="handleCommand"
       >
-        <Identicon
-          class="mt-4-1 cursor-pointer"
-          theme="polkadot"
-          :size="40"
-          :value="currentUser ? currentUser.address : '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY'"
-        />
+        <CurrentUser />
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item
             v-for="(user, i) in users"

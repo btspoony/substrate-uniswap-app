@@ -43,7 +43,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
     // 构建交易
     const extrinsic = this.$api.tx.swapModule.create_trade_pair(payload.base, payload.quote)
     // 交易签名并发送
-    const keypair = (ctx.getters['currentUser'] as User)?.keypair
+    const keypair = (ctx.rootGetters['currentUser'] as User)?.keypair
     await extrinsic.signAndSend(keypair, this.$txSendingCallback())
   },
   /**
@@ -55,7 +55,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
     // 构建交易
     const extrinsic = this.$api.tx.swapModule.add_liquidity(payload.hash, payload.baseAmount, payload.quoteAmount)
     // 交易签名并发送
-    const keypair = (ctx.getters['currentUser'] as User)?.keypair
+    const keypair = (ctx.rootGetters['currentUser'] as User)?.keypair
     await extrinsic.signAndSend(keypair, this.$txSendingCallback())
   },
   /**
@@ -67,7 +67,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
     // 构建交易
     const extrinsic = this.$api.tx.swapModule.remove_liquidity(payload.hash, payload.ltAmount)
     // 交易签名并发送
-    const keypair = (ctx.getters['currentUser'] as User)?.keypair
+    const keypair = (ctx.rootGetters['currentUser'] as User)?.keypair
     await extrinsic.signAndSend(keypair, this.$txSendingCallback())
   },
   /**
@@ -79,7 +79,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
     // 构建交易
     const extrinsic = this.$api.tx.swapModule.swap_buy(payload.hash, payload.baseAmount)
     // 交易签名并发送
-    const keypair = (ctx.getters['currentUser'] as User)?.keypair
+    const keypair = (ctx.rootGetters['currentUser'] as User)?.keypair
     await extrinsic.signAndSend(keypair, this.$txSendingCallback())
   },
   /**
@@ -91,7 +91,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
     // 构建交易
     const extrinsic = this.$api.tx.swapModule.swap_sell(payload.hash, payload.quoteAmount)
     // 交易签名并发送
-    const keypair = (ctx.getters['currentUser'] as User)?.keypair
+    const keypair = (ctx.rootGetters['currentUser'] as User)?.keypair
     await extrinsic.signAndSend(keypair, this.$txSendingCallback())
   }
 }

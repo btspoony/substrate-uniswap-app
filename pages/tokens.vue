@@ -1,61 +1,69 @@
 <template>
-  <el-tabs
-    v-show="currentUser"
-    v-model="activeTab"
-    :stretch="true"
-  >
-    <el-tab-pane name="tokens" label="Tokens">
-      <el-table
-        class="width-100-percent"
-        :data="tableData"
-      >
-        <el-table-column label="Symbol" width="80">
-          <template slot-scope="scope">
-            <span>{{ scope.row.token && scope.row.token.symbol && scope.row.token.symbol.toHex() }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="Hash" width="240">
-          <template slot-scope="scope">
-            <span class="ellipsis-word">
-              {{ scope.row.token && scope.row.token.hash && scope.row.token.hash.toHex() }}
-            </span>
-          </template>
-        </el-table-column>
-        <el-table-column label="Balances">
-          <template slot-scope="scope">
-            <el-row v-if="scope.row.balances">
-              <el-col :span="20">
-                <p>All: {{ scope.row.balances.all }}</p>
-                <p>Free: {{ scope.row.balances.free }}</p>
-                <p>Frozen: {{ scope.row.balances.frozen }}</p>
-              </el-col>
-              <el-col :span="4">
-                <el-button
-                  class="width-100-percent"
-                  type="primary"
-                  icon="el-icon-s-promotion"
-                  @click="transferTokenDialogVisible = true"
-                ></el-button>
-              </el-col>
-            </el-row>
-            <span v-else>loading...</span>
-          </template>
-        </el-table-column>
-      </el-table>
-      <el-button
-        class="width-100-percent"
-        type="primary"
-        icon="el-icon-plus"
-        @click="newTokenDialogVisible = true"
-      >ADD</el-button>
-    </el-tab-pane>
-    <el-tab-pane name="activities" label="Activities">
-      <p>Content of Activities.</p>
-      <p>(Working in progress...)</p>
-    </el-tab-pane>
+  <div>
+    <el-row v-if="currentUser">
+      <el-col :span="4" class="align-center">
+        <CurrentUser />
+      </el-col>
+      <el-col :span="20" style="line-height: 50px">
+        <h1>{{ currentUser.keypair && currentUser.keypair.meta ? currentUser.keypair.meta.name : currentUser.address }}</h1>
+      </el-col>
+    </el-row>
+    <el-tabs
+      v-show="currentUser"
+      v-model="activeTab"
+      :stretch="true"
+    >
+      <el-tab-pane name="tokens" label="Tokens">
+        <el-table
+          class="width-100-percent"
+          :data="tableData"
+        >
+          <el-table-column label="Symbol" width="80">
+            <template slot-scope="scope">
+              <p>{{ scope.row.token && scope.row.token.symbol && scope.row.token.symbol.toU8a() | u8aToString }}</p>
+            </template>
+          </el-table-column>
+          <el-table-column label="Hash" width="240">
+            <template slot-scope="scope">
+              <span>
+                {{ scope.row.token && scope.row.token.token_hash && scope.row.token.token_hash.toHex() }}
+              </span>
+            </template>
+          </el-table-column>
+          <el-table-column label="Balances">
+            <template slot-scope="scope">
+              <el-row v-if="scope.row.balances">
+                <el-col :span="18">
+                  <p>Free: {{ scope.row.balances.free }}</p>
+                  <p>Frozen: {{ scope.row.balances.frozen }}</p>
+                </el-col>
+                <el-col :span="6" class="align-right">
+                  <el-button
+                    type="primary"
+                    icon="el-icon-s-promotion"
+                    @click="transferTokenDialogVisible = true"
+                  ></el-button>
+                </el-col>
+              </el-row>
+              <span v-else>loading...</span>
+            </template>
+          </el-table-column>
+        </el-table>
+        <el-button
+          class="width-100-percent"
+          type="primary"
+          icon="el-icon-plus"
+          @click="newTokenDialogVisible = true"
+        >ADD</el-button>
+      </el-tab-pane>
+      <el-tab-pane name="activities" label="Activities">
+        <p>Content of Activities.</p>
+        <p>(Working in progress...)</p>
+      </el-tab-pane>
+    </el-tabs>
     <NewToken :dialog-visible.sync="newTokenDialogVisible" />
     <TransferToken :dialog-visible.sync="transferTokenDialogVisible" />
-  </el-tabs>
+  </div>
 </template>
 
 <script lang="ts">
@@ -78,6 +86,10 @@ export default class PageComponent extends Vue {
   get availableTokens () { return (this.$store.state.tokens as ModuleState).tokens }
   get currentUser () { return this.$store.getters['currentUser'] as User }
   // ---- Watch --
+  @Watch('currentUser')
+  async onCurrentUserChange() {
+    await this.queryTokenBalances(this.availableTokens)
+  }
   @Watch('allTokenLength')
   async onTokenLengthChange(newLength: number, oldLength: number) {
     if (newLength > oldLength) {
@@ -94,15 +106,20 @@ export default class PageComponent extends Vue {
   }
   // ------ Methods ---
   async queryTokenBalances (tokens: Token[]) {
-    if (!this.currentUser) return
+    if (!this.currentUser) {
+      this.tableData = this.availableTokens.map(token => ({ token }))
+      return
+    }
     // 当前地址
     const address = this.currentUser.address
     // 批量获取 balance
     const balances = await Promise.all(tokens.map(async token => {
       const result: { token: Token, balances?: TokenBalances } = { token }
       try {
-        const tokenHash = token.hash.toHex()
-        result.balances = (await this.$store.dispatch('tokens/queryTokenBalance', { tokenHash, address })) as TokenBalances
+        result.balances = (await this.$store.dispatch('tokens/queryTokenBalance', {
+          tokenHash: token.token_hash.toHex(),
+          address
+        })) as TokenBalances
       } catch (err) { console.error(err) }
       return result
     }))
