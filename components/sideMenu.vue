@@ -7,15 +7,22 @@
     <el-menu
       class="app-side-menu"
       default-active="tokens"
-      :unique-opened="true"
       :router="true"
       @select="menuSelected"
     >
-      <el-menu-item index="tokens" route="/tokens">
+      <el-menu-item
+        index="tokens"
+        route="/tokens"
+        :class="[{ 'is-active': currentMenu === 'tokens' }]"
+      >
         <i class="el-icon-s-finance"></i>
         <span slot="title">Tokens</span>
       </el-menu-item>
-      <el-menu-item index="trading" route="/trading">
+      <el-menu-item
+        index="trading"
+        route="/trading/swap"
+        :class="[{ 'is-active': currentMenu === 'trading' }]"
+      >
         <i class="el-icon-s-marketing"></i>
         <span slot="title">Trading</span>
       </el-menu-item>
@@ -35,6 +42,7 @@ export default class SideMenuComponent extends Vue {
   set isOpened (value: boolean) {
     this.$store.commit('app/SET_SIDE_MENU_OPENED', value)
   }
+  get currentMenu () { return this.$route.path.split('/')[1] }
   // ---- Hooks --
   async mounted () {
     // NOTHING

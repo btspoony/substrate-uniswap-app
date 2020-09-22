@@ -16,7 +16,7 @@
               <p>{{ scope.row.token && scope.row.token.symbol && scope.row.token.symbol.toU8a() | u8aToString }}</p>
             </template>
           </el-table-column>
-          <el-table-column label="Hash" width="240">
+          <el-table-column label="Hash" width="280">
             <template slot-scope="scope">
               <span>
                 {{ scope.row.token && scope.row.token.token_hash && scope.row.token.token_hash.toHex() }}
@@ -27,8 +27,8 @@
             <template slot-scope="scope">
               <el-row v-if="scope.row.balances">
                 <el-col :span="18">
-                  <p>Free: {{ scope.row.balances.free }}</p>
-                  <p>Frozen: {{ scope.row.balances.frozen }}</p>
+                  <p>Free: {{ scope.row.balances.free | toBalance }}</p>
+                  <p>Frozen: {{ scope.row.balances.frozen | toBalance }}</p>
                 </el-col>
                 <el-col :span="6" class="align-right">
                   <el-button

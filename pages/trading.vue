@@ -19,7 +19,11 @@ import { Route } from 'vue-router'
 import { Vue, Component, Watch } from 'vue-property-decorator'
 import { User } from '~/types'
 
-@Component
+@Component({
+  async fetch (ctx) {
+    await ctx.store.dispatch('tokens/queryAllTokens')
+  }
+})
 export default class PageComponent extends Vue {
   activeTab = "swap"
   // ---- Computed --
@@ -39,7 +43,7 @@ export default class PageComponent extends Vue {
   }
   // ------ UI Handler ---
   onHandleTabClick (tabPane: any) {
-    this.$router.push(tabPane.name)
+    this.$router.push('/trading/' + tabPane.name)
   }
 }
 </script>
