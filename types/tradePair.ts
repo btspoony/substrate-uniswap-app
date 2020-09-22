@@ -2,7 +2,7 @@ import { Struct } from '@polkadot/types/codec'
 import { Hash, Balance, AccountId } from '@polkadot/types/interfaces/runtime'
 
 export interface TradePair extends Struct {
-  readonly hash: Hash
+  readonly tp_hash: Hash
   readonly base: Hash
   readonly quote: Hash
   readonly liquidity_token_hash: Hash
@@ -11,7 +11,7 @@ export interface TradePair extends Struct {
 }
 
 export const TradePairDef = {
-  hash: 'Hash',
+  tp_hash: 'Hash',
   base: 'Hash',
   quote: 'Hash',
   liquidity_token_hash: 'Hash',

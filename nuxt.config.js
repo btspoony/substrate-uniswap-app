@@ -62,7 +62,7 @@ export default {
   */
   plugins: [
     '@/plugins/element-ui.js',
-    '@/plugins/filters',
+    '@/plugins/utilities',
     '@/plugins/substrate'
   ],
   /*

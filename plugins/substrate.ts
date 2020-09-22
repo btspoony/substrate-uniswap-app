@@ -33,16 +33,27 @@ const substratePlugin: Plugin = async (context, inject) => {
   inject('txSendingCallback', (handlerFunc?: Callback<ISubmittableResult>) => {
     return async (result: ISubmittableResult) => {
       const { status, events, isInBlock, isFinalized } = result
+      let txHash
       if (isInBlock) {
-        const txHash = status.asInBlock.toHex()
-        // 回调 hash
-        await context.store.dispatch('transactionSent', { hash: txHash, events })
+        txHash = status.asInBlock.toHex()
       } else if (isFinalized) {
-        const txHash = status.asFinalized.toHex()
-        // 回调 hash
-        await context.store.dispatch('transactionFinalized', { hash: txHash, events })
+        txHash = status.asFinalized.toHex()
       } else {
         console.log('Status of extrinsic: ' + status.type)
+      }
+      context.app.$eventBus.$emit('txmsg', { type: 'info', title: status.type, message: txHash })
+      /**
+       * inblock 时发出提示
+       */
+      if (isInBlock) {
+        for (const evt of events) {
+          const isFailed = evt.event.section === 'system' && evt.event.method === 'ExtrinsicFailed'
+          context.app.$eventBus.$emit('txmsg', {
+            title: evt.event.method,
+            message: JSON.stringify(evt.event.data),
+            type: !isFailed ? 'success' : 'failed'
+          })
+        }
       }
       // 可选执行
       if (handlerFunc !== undefined) {

@@ -35,6 +35,12 @@ export const actions: ActionTree<ModuleState, RootState> = {
     ctx.commit('SETUP_ALL_TRADE_PAIRS', all)
   },
   /**
+   * 获取交易对总量
+   */
+  async fetchTradePairsLength (ctx) {
+
+  },
+  /**
    * 创建交易对
    * 由 管理员 执行
    */

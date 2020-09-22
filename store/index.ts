@@ -37,17 +37,5 @@ export const actions: ActionTree<RootState, RootState> = {
       ctx.commit('SETUP_AVAILABLE_USERS', pairs.map(one => new User(one)))
       ctx.commit('SET_CURRENT_USER', 0)
     }
-  },
-  /**
-   * 当交易发出并上区块后回调
-   */
-  transactionSent (ctx, payload: { hash: string, events: EventRecord[] }) {
-    console.log('hash online:', payload.hash, payload.events)
-  },
-  /**
-   * 交易完成时回调
-   */
-  transactionFinalized (ctx, payload: { hash: string, events: EventRecord[] }) {
-    console.log('hash finalized:', payload.hash, payload.events)
   }
 }
