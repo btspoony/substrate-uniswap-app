@@ -29,14 +29,14 @@ type TxMsgInfo = {
 export default class LayoutComponent extends Vue {
   async mounted () {
     await this.$store.dispatch('queryAllUsers')
+
     // 添加时间监听
     this.$eventBus.$on('txmsg', (info: TxMsgInfo) => {
-      const message = (info.title ? `<h3>${info.title}</h3>` : '') + info.message
-      this.$message({
-        message,
+      this.$notify({
+        title: info.title || '',
+        message: this.$createElement('p', { class: 'ellipsis-word' }, info.message),
         type: info.type,
-        showClose: true,
-        dangerouslyUseHTMLString: true
+        duration: 2000
       })
     })
   }
