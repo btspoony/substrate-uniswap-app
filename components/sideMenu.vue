@@ -11,11 +11,11 @@
       :router="true"
       @select="menuSelected"
     >
-      <el-menu-item index="tokens">
+      <el-menu-item index="tokens" route="/tokens">
         <i class="el-icon-s-finance"></i>
         <span slot="title">Tokens</span>
       </el-menu-item>
-      <el-menu-item index="trading">
+      <el-menu-item index="trading" route="/trading">
         <i class="el-icon-s-marketing"></i>
         <span slot="title">Trading</span>
       </el-menu-item>

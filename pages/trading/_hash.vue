@@ -1,14 +1,19 @@
 <template>
   <div>
-    <CurrentUserHeader />
-    <NuxtChild />
+    TradePair Detail Page
   </div>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
+import { TradePair } from '~/types'
+import { ModuleState } from '~/store/pool'
 
-@Component
+@Component({
+  async asyncData (ctx) {
+    return { hash: ctx.params['hash'] }
+  }
+})
 export default class PageComponent extends Vue {
   // ---- Computed --
   // NOTHING
