@@ -70,7 +70,7 @@ type FormData = {
 export default class PageComponent extends Vue {
   formData: FormData = {}
   // ---- Computed --
-  get availableTokens () { return this.$store.getters['tokens/basicTokens'] as Token[] }
+  get availableTokens () { return this.$store.getters['tokens/normalTokens'] as Token[] }
   get availableFromTokens () {
     if (!this.formData.toTokenHash) return this.availableTokens
     const toHash = this.formData.toTokenHash

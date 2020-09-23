@@ -13,7 +13,7 @@ export const state = () => ({
 export type ModuleState = ReturnType<typeof state>
 
 export const getters: GetterTree<ModuleState, RootState> = {
-  basicTokens: state => state.tokens.filter(one => true),
+  normalTokens: state => state.tokens.filter(one => true),
   liquidityTokens: state => state.tokens.filter(one => false)
 }
 
@@ -26,13 +26,15 @@ export const actions: ActionTree<ModuleState, RootState> = {
   /**
    * 获取全部用户和其私钥
    */
-  async queryAllTokens (ctx) {
+  async queryAllTokens (ctx, payload: { isForce?: boolean } = {}) {
     await this.$ensureApiConnected()
-    // 第一次需要获取 index
-    const oldLength = ctx.state.tokenLength
-    await ctx.dispatch('fetchTokenLengthIndex')
+    if (!payload.isForce) {
+      // 第一次需要获取 index
+      const oldLength = ctx.state.tokenLength
+      await ctx.dispatch('fetchTokenLengthIndex')
+      if (oldLength === ctx.state.tokenLength) return
+    }
     const len = ctx.state.tokenLength
-    if (oldLength === len) return
     // 从 0 ~ length index 一路查过去
     const tokenIndexes = []
     for (let i = 0; i < len; i++) { tokenIndexes.push(i) }
@@ -69,7 +71,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
     const keypair = (ctx.rootGetters['currentUser'] as User)?.keypair
     await extrinsic.signAndSend(keypair, this.$txSendingCallback(async result => {
       // 当 finalized 时，获取最新的 token length
-      if (result.isFinalized) {
+      if (result.isInBlock) {
         await ctx.dispatch('fetchTokenLengthIndex')
       }
     }))

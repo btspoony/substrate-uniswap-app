@@ -5,41 +5,14 @@
     :stretch="true"
   >
     <el-tab-pane name="tokens" label="Tokens">
-      <el-table
-        class="width-100-percent"
-        :data="tableData"
-      >
-        <el-table-column label="Symbol" width="80">
-          <template slot-scope="scope">
-            <p>{{ scope.row.token && scope.row.token.symbol && scope.row.token.symbol.toU8a() | u8aToString }}</p>
-          </template>
-        </el-table-column>
-        <el-table-column label="Hash" width="280">
-          <template slot-scope="scope">
-            <span>
-              {{ scope.row.token && scope.row.token.token_hash && scope.row.token.token_hash.toHex() }}
-            </span>
-          </template>
-        </el-table-column>
-        <el-table-column label="Balances">
-          <template slot-scope="scope">
-            <el-row v-if="scope.row.balances">
-              <el-col :span="18">
-                <p>Free: {{ scope.row.balances.free | toBalance }}</p>
-                <p>Frozen: {{ scope.row.balances.frozen | toBalance }}</p>
-              </el-col>
-              <el-col :span="6" class="align-right">
-                <el-button
-                  type="primary"
-                  icon="el-icon-s-promotion"
-                  @click="transferTokenDialogVisible = true"
-                ></el-button>
-              </el-col>
-            </el-row>
-            <span v-else>loading...</span>
-          </template>
-        </el-table-column>
-      </el-table>
+      <TokensTable :list="tableData">
+        <el-button
+          slot="operation"
+          type="primary"
+          icon="el-icon-s-promotion"
+          @click="transferTokenDialogVisible = true"
+        ></el-button>
+      </TokensTable>
       <el-button
         class="width-100-percent"
         type="primary"
@@ -73,7 +46,7 @@ export default class PageComponent extends Vue {
   transferTokenDialogVisible = false
   // ---- Computed --
   get allTokenLength () { return (this.$store.state.tokens as ModuleState).tokenLength }
-  get availableTokens () { return this.$store.getters['tokens/basicTokens'] as Token[] }
+  get availableTokens () { return this.$store.getters['tokens/normalTokens'] as Token[] }
   get currentUser () { return this.$store.getters['currentUser'] as User }
   // ---- Watch --
   @Watch('currentUser')
@@ -83,7 +56,7 @@ export default class PageComponent extends Vue {
   @Watch('allTokenLength')
   async onTokenLengthChange(newLength: number, oldLength: number) {
     if (newLength > oldLength) {
-      await this.$store.dispatch('tokens/queryAllTokens')
+      await this.$store.dispatch('tokens/queryAllTokens', { isForce: true })
     }
   }
   @Watch('availableTokens', { immediate: true, deep: true })
