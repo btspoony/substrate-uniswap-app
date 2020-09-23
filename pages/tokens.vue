@@ -1,32 +1,36 @@
 <template>
-  <el-tabs
-    v-show="currentUser"
-    v-model="activeTab"
-    :stretch="true"
-  >
-    <el-tab-pane name="tokens" label="Tokens">
-      <TokensTable token-key="normalTokens">
-        <el-button
-          slot="operation"
-          type="primary"
-          icon="el-icon-s-promotion"
-          @click="transferTokenDialogVisible = true"
-        ></el-button>
-      </TokensTable>
-      <el-button
-        class="width-100-percent"
-        type="primary"
-        icon="el-icon-plus"
-        @click="newTokenDialogVisible = true"
-      >ADD</el-button>
-    </el-tab-pane>
-    <el-tab-pane name="activities" label="Activities">
-      <p>Content of Activities.</p>
-      <p>(Working in progress...)</p>
-    </el-tab-pane>
-    <NewToken :dialog-visible.sync="newTokenDialogVisible" />
-    <TransferToken :dialog-visible.sync="transferTokenDialogVisible" />
-  </el-tabs>
+  <el-row v-show="currentUser">
+    <el-col :span="22" :offset="1">
+      <el-tabs
+        v-show="currentUser"
+        v-model="activeTab"
+        :stretch="true"
+      >
+        <el-tab-pane name="tokens" label="Tokens">
+          <TokensTable token-key="normalTokens">
+            <el-button
+              slot="operation"
+              type="primary"
+              icon="el-icon-s-promotion"
+              @click="transferTokenDialogVisible = true"
+            ></el-button>
+          </TokensTable>
+          <el-button
+            class="width-100-percent"
+            type="primary"
+            icon="el-icon-plus"
+            @click="newTokenDialogVisible = true"
+          >ADD</el-button>
+        </el-tab-pane>
+        <el-tab-pane name="activities" label="Activities">
+          <p>Content of Activities.</p>
+          <p>(Working in progress...)</p>
+        </el-tab-pane>
+        <NewToken :dialog-visible.sync="newTokenDialogVisible" />
+        <TransferToken :dialog-visible.sync="transferTokenDialogVisible" />
+      </el-tabs>
+    </el-col>
+  </el-row>
 </template>
 
 <script lang="ts">

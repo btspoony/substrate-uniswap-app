@@ -1,12 +1,14 @@
 <template>
-  <el-row>
-    <el-col
-      :sm="{ span: 18, offset: 3 }"
-      :xs="{ span: 20, offset: 2 }"
-    >
-      <el-card class="width-100-percent">
-        TradePair Pool Page
-      </el-card>
+  <el-row v-show="currentUser">
+    <el-col :span="22" :offset="1">
+      <TokensTable token-key="liquidityTokens">
+        <el-button
+          slot="operation"
+          type="primary"
+          icon="el-icon-s-finance"
+          @click="removeLiquidityDialogVisible = true"
+        ></el-button>
+      </TokensTable>
     </el-col>
   </el-row>
 </template>
@@ -18,6 +20,7 @@ import { ModuleState } from '~/store/pool'
 
 @Component
 export default class RedirectComponent extends Vue {
+  removeLiquidityDialogVisible = false
   // ---- Computed --
   get currentUser () {
     return this.$store.getters['currentUser'] as User
