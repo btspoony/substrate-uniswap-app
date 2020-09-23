@@ -20,8 +20,8 @@
         <el-option
           v-for="(token,i) in tokens"
           :key="'token_'+i"
-          :label="token.symbol.toU8a() | u8aToString"
-          :value="token.token_hash.toHex()"
+          :label="token.symbol"
+          :value="token.hash"
         ></el-option>
       </el-select>
     </el-input>
@@ -30,13 +30,13 @@
 
 <script lang="ts">
 import { Vue, Component, Prop, PropSync } from 'vue-property-decorator'
-import { Token } from '~/types'
+import { TokenDisplay } from '~/types'
 
 @Component
 export default class TokenInputComponent extends Vue {
   @PropSync('amount', { type: String }) amountValue!: string
   @PropSync('hash', { type: String }) hashValue!: string
-  @Prop() readonly tokens!: Token[]
+  @Prop() readonly tokens!: TokenDisplay[]
   @Prop(String) readonly icon!: string
   @Prop({ default: 'Item' }) readonly itemLabel!: string
   @Prop(String) readonly itemProp!: string

@@ -6,7 +6,6 @@
   >
     <el-menu
       class="app-side-menu"
-      default-active="tokens"
       :router="true"
       @select="menuSelected"
     >

@@ -52,7 +52,7 @@
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import { Token, TradePair } from '~/types'
+import { TokenDisplay, TradePair } from '~/types'
 import * as pool from '~/store/pool'
 
 type FormData = {
@@ -70,16 +70,16 @@ type FormData = {
 export default class PageComponent extends Vue {
   formData: FormData = {}
   // ---- Computed --
-  get availableTokens () { return this.$store.getters['tokens/normalTokens'] as Token[] }
+  get availableTokens () { return this.$store.getters['tokens/normalTokens'] as TokenDisplay[] }
   get availableFromTokens () {
     if (!this.formData.toTokenHash) return this.availableTokens
     const toHash = this.formData.toTokenHash
-    return this.availableTokens.filter(one => one.token_hash.toHex() !== toHash)
+    return this.availableTokens.filter(one => one.hash !== toHash)
   }
   get availableToTokens () {
     if (!this.formData.fromTokenHash) return this.availableTokens
     const toHash = this.formData.fromTokenHash
-    return this.availableTokens.filter(one => one.token_hash.toHex() !== toHash)
+    return this.availableTokens.filter(one => one.hash !== toHash)
   }
   get isFromAmountValid () { return this.isNumber(this.formData.fromAmount) }
   get isToAmountValid () { return this.isNumber(this.formData.toAmount) }

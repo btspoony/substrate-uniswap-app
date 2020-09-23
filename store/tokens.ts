@@ -1,24 +1,30 @@
 import { GetterTree, ActionTree, MutationTree } from 'vuex'
-import { TextEncoder } from 'text-encoding'
+import { TextEncoder, TextDecoder } from 'text-encoding'
 import { Option } from '@polkadot/types/codec'
 import { Hash } from '@polkadot/types/interfaces/runtime'
 import { RootState } from '~/store'
-import { User, Token, TokenBalances } from '~/types'
+import { User, Token, TokenBalances, TokenDisplay } from '~/types'
 
 export const state = () => ({
-  tokens: [] as Token[],
+  tokens: [] as TokenDisplay[],
   tokenLength: -1
 })
 
 export type ModuleState = ReturnType<typeof state>
 
+const mapToDisplay = (tokens: Token[]): TokenDisplay[] => tokens.map(one => ({
+  hash: one.token_hash.toHex(),
+  symbol: new TextDecoder().decode(one.symbol.toU8a()),
+  total_supply: one.total_supply.toNumber(),
+  ttype: one.ttype.isNormal ? 'Normal' : 'Liquidity'
+}))
 export const getters: GetterTree<ModuleState, RootState> = {
-  normalTokens: state => state.tokens.filter(one => true),
-  liquidityTokens: state => state.tokens.filter(one => false)
+  normalTokens: state => state.tokens.filter(one => one.ttype === 'Normal'),
+  liquidityTokens: state => state.tokens.filter(one => one.ttype === 'Liquidity')
 }
 
 export const mutations: MutationTree<ModuleState> = {
-  SETUP_ALL_TOKENS: (state, payload: { tokens: Token[] }) => (state.tokens = payload.tokens),
+  SETUP_ALL_TOKENS: (state, payload: { tokens: TokenDisplay[] }) => (state.tokens = payload.tokens),
   SET_TOKENS_LENGTH: (state, payload: { len: number }) => (state.tokenLength = payload.len)
 }
 
@@ -39,16 +45,17 @@ export const actions: ActionTree<ModuleState, RootState> = {
     const tokenIndexes = []
     for (let i = 0; i < len; i++) { tokenIndexes.push(i) }
     // 并发获取信息
-    const tokens = (await Promise.all(tokenIndexes.map(async index => {
+    const tokens: Token[] = []
+    await Promise.all(tokenIndexes.map(async index => {
       const hash = (await this.$api.query.tokenModule.tokenHashByIndex(index)) as Option<Hash>
       if (hash.isSome) {
         const token = (await this.$api.query.tokenModule.tokens(hash.unwrap())) as Option<Token>
-        return token.isSome ? token.unwrap() : null
+        // push tokens list
+        if (token.isSome) tokens.push(token.unwrap())
       }
-      return null
-    }))).filter(one => one !== null)
+    }))
     // 需要请求 substrate 获取 tokens
-    ctx.commit('SETUP_ALL_TOKENS', { tokens })
+    ctx.commit('SETUP_ALL_TOKENS', { tokens: mapToDisplay(tokens) })
   },
   async fetchTokenLengthIndex (ctx) {
     await this.$ensureApiConnected()
