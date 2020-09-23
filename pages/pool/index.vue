@@ -1,7 +1,10 @@
 <template>
   <el-row v-show="currentUser">
     <el-col :span="22" :offset="1">
-      <TokensTable token-key="liquidityTokens">
+      <TokensTable
+        class="mb-8-1"
+        token-key="liquidityTokens"
+      >
         <el-button
           slot="operation"
           type="primary"
@@ -9,6 +12,23 @@
           @click="removeLiquidityDialogVisible = true"
         ></el-button>
       </TokensTable>
+      <el-row :gutter="8">
+        <el-col :span="12">
+          <el-button
+            class="width-100-percent"
+            icon="el-icon-plus"
+            @click="$router.push('/pool/create')"
+          >CREATE PAIR</el-button>
+        </el-col>
+        <el-col :span="12">
+          <el-button
+            type="primary"
+            class="width-100-percent"
+            icon="el-icon-upload2"
+            @click="$router.push('/pool/add')"
+          >ADD LIQUIDITY</el-button>
+        </el-col>
+      </el-row>
     </el-col>
   </el-row>
 </template>

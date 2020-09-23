@@ -8,7 +8,7 @@
         <p>{{ scope.row.token && scope.row.token.symbol }}</p>
       </template>
     </el-table-column>
-    <el-table-column label="Hash" width="280">
+    <el-table-column label="Hash" width="240">
       <template slot-scope="scope">
         <span>
           {{ scope.row.token && scope.row.token.hash }}

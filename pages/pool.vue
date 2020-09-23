@@ -3,9 +3,7 @@
 </template>
 
 <script lang="ts">
-import { Route } from 'vue-router'
-import { Vue, Component, Watch } from 'vue-property-decorator'
-import { User } from '~/types'
+import { Vue, Component } from 'vue-property-decorator'
 
 @Component({
   async fetch (ctx) {
@@ -14,19 +12,9 @@ import { User } from '~/types'
 })
 export default class PageComponent extends Vue {
   // ---- Computed --
-  get currentUser () { return this.$store.getters['currentUser'] as User }
+  // NOTHING
   // ---- Hooks --
-  @Watch('$route')
-  onRouteChange (route: Route) {
-    this.updateRoute(route.path)
-  }
-  async mounted () {
-    this.updateRoute(this.$route.path)
-  }
-  // ------ Methods ---
-  updateRoute (path: string) {
-    // TODO
-  }
+  // NOTHING
   // ------ UI Handler ---
   // NOTHING
 }

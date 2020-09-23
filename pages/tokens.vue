@@ -20,7 +20,7 @@
             type="primary"
             icon="el-icon-plus"
             @click="newTokenDialogVisible = true"
-          >ADD</el-button>
+          >ADD TOKEN</el-button>
         </el-tab-pane>
         <el-tab-pane name="activities" label="Activities">
           <p>Content of Activities.</p>

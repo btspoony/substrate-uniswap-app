@@ -4,7 +4,7 @@
       :sm="{ span: 18, offset: 3 }"
       :xs="{ span: 20, offset: 2 }"
     >
-    <BackCard title="Add Liquidity">
+    <BackCard title="Create TradePair">
       <NuxtChild v-if="availableTokens.length > 0"/>
       <div v-else>No Token</div>
     </BackCard>
@@ -18,7 +18,7 @@ import { TokenDisplay } from '~/types'
 // import { ModuleState } from '~/store/pool'
 
 @Component
-export default class AddLiquidityPageComponent extends Vue {
+export default class CreatePairPageComponent extends Vue {
   // ---- Computed --
   get availableTokens () { return this.$store.getters['tokens/normalTokens'] as TokenDisplay[] }
   // ---- Hooks --
