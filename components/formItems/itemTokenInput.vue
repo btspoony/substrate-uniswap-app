@@ -8,7 +8,7 @@
   >
     <el-input
       placeholder="0.0"
-      prefix-icon="el-icon-sold-out"
+      :prefix-icon="icon"
       v-model="amountValue"
     >
       <el-select
@@ -61,3 +61,9 @@ export default class TokenInputComponent extends Vue {
   }
 }
 </script>
+
+<style lang="scss">
+.token-select.el-select .el-input {
+  width: 100px;
+}
+</style>

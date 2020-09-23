@@ -127,9 +127,3 @@ export default class PageComponent extends Vue {
   }
 }
 </script>
-
-<style lang="scss">
-.token-select.el-select .el-input {
-  width: 100px;
-}
-</style>

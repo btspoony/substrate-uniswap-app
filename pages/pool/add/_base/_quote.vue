@@ -17,7 +17,7 @@ import { Vue, Component, Watch } from 'vue-property-decorator'
     }
   }
 })
-export default class PageComponent extends Vue {
+export default class BaseQuoteComponent extends Vue {
   // ---- Computed --
   // NOTHING
   // ---- Hooks --
