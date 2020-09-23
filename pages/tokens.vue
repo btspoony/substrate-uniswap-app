@@ -1,62 +1,59 @@
 <template>
-  <div>
-    <CurrentUserHeader />
-    <el-tabs
-      v-show="currentUser"
-      v-model="activeTab"
-      :stretch="true"
-    >
-      <el-tab-pane name="tokens" label="Tokens">
-        <el-table
-          class="width-100-percent"
-          :data="tableData"
-        >
-          <el-table-column label="Symbol" width="80">
-            <template slot-scope="scope">
-              <p>{{ scope.row.token && scope.row.token.symbol && scope.row.token.symbol.toU8a() | u8aToString }}</p>
-            </template>
-          </el-table-column>
-          <el-table-column label="Hash" width="280">
-            <template slot-scope="scope">
-              <span>
-                {{ scope.row.token && scope.row.token.token_hash && scope.row.token.token_hash.toHex() }}
-              </span>
-            </template>
-          </el-table-column>
-          <el-table-column label="Balances">
-            <template slot-scope="scope">
-              <el-row v-if="scope.row.balances">
-                <el-col :span="18">
-                  <p>Free: {{ scope.row.balances.free | toBalance }}</p>
-                  <p>Frozen: {{ scope.row.balances.frozen | toBalance }}</p>
-                </el-col>
-                <el-col :span="6" class="align-right">
-                  <el-button
-                    type="primary"
-                    icon="el-icon-s-promotion"
-                    @click="transferTokenDialogVisible = true"
-                  ></el-button>
-                </el-col>
-              </el-row>
-              <span v-else>loading...</span>
-            </template>
-          </el-table-column>
-        </el-table>
-        <el-button
-          class="width-100-percent"
-          type="primary"
-          icon="el-icon-plus"
-          @click="newTokenDialogVisible = true"
-        >ADD</el-button>
-      </el-tab-pane>
-      <el-tab-pane name="activities" label="Activities">
-        <p>Content of Activities.</p>
-        <p>(Working in progress...)</p>
-      </el-tab-pane>
-    </el-tabs>
+  <el-tabs
+    v-show="currentUser"
+    v-model="activeTab"
+    :stretch="true"
+  >
+    <el-tab-pane name="tokens" label="Tokens">
+      <el-table
+        class="width-100-percent"
+        :data="tableData"
+      >
+        <el-table-column label="Symbol" width="80">
+          <template slot-scope="scope">
+            <p>{{ scope.row.token && scope.row.token.symbol && scope.row.token.symbol.toU8a() | u8aToString }}</p>
+          </template>
+        </el-table-column>
+        <el-table-column label="Hash" width="280">
+          <template slot-scope="scope">
+            <span>
+              {{ scope.row.token && scope.row.token.token_hash && scope.row.token.token_hash.toHex() }}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="Balances">
+          <template slot-scope="scope">
+            <el-row v-if="scope.row.balances">
+              <el-col :span="18">
+                <p>Free: {{ scope.row.balances.free | toBalance }}</p>
+                <p>Frozen: {{ scope.row.balances.frozen | toBalance }}</p>
+              </el-col>
+              <el-col :span="6" class="align-right">
+                <el-button
+                  type="primary"
+                  icon="el-icon-s-promotion"
+                  @click="transferTokenDialogVisible = true"
+                ></el-button>
+              </el-col>
+            </el-row>
+            <span v-else>loading...</span>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-button
+        class="width-100-percent"
+        type="primary"
+        icon="el-icon-plus"
+        @click="newTokenDialogVisible = true"
+      >ADD</el-button>
+    </el-tab-pane>
+    <el-tab-pane name="activities" label="Activities">
+      <p>Content of Activities.</p>
+      <p>(Working in progress...)</p>
+    </el-tab-pane>
     <NewToken :dialog-visible.sync="newTokenDialogVisible" />
     <TransferToken :dialog-visible.sync="transferTokenDialogVisible" />
-  </div>
+  </el-tabs>
 </template>
 
 <script lang="ts">
@@ -76,7 +73,7 @@ export default class PageComponent extends Vue {
   transferTokenDialogVisible = false
   // ---- Computed --
   get allTokenLength () { return (this.$store.state.tokens as ModuleState).tokenLength }
-  get availableTokens () { return (this.$store.state.tokens as ModuleState).tokens }
+  get availableTokens () { return this.$store.getters['tokens/basicTokens'] as Token[] }
   get currentUser () { return this.$store.getters['currentUser'] as User }
   // ---- Watch --
   @Watch('currentUser')

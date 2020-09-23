@@ -1,17 +1,5 @@
 <template>
-  <div>
-    <CurrentUserHeader />
-    <el-tabs
-      :stretch="true"
-      v-show="currentUser"
-      v-model="activeTab"
-      @tab-click="onHandleTabClick"
-    >
-      <el-tab-pane name="swap" label="Swap" />
-      <el-tab-pane name="pool" label="Pool" />
-    </el-tabs>
-    <NuxtChild />
-  </div>
+  <NuxtChild />
 </template>
 
 <script lang="ts">
@@ -25,7 +13,6 @@ import { User } from '~/types'
   }
 })
 export default class PageComponent extends Vue {
-  activeTab = "swap"
   // ---- Computed --
   get currentUser () { return this.$store.getters['currentUser'] as User }
   // ---- Hooks --
@@ -38,12 +25,9 @@ export default class PageComponent extends Vue {
   }
   // ------ Methods ---
   updateRoute (path: string) {
-    const lastPath = path.split('/').pop()
-    this.activeTab = lastPath || 'swap'
+    // TODO
   }
   // ------ UI Handler ---
-  onHandleTabClick (tabPane: any) {
-    this.$router.push('/trading/' + tabPane.name)
-  }
+  // NOTHING
 }
 </script>

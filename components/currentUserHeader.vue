@@ -1,5 +1,5 @@
 <template>
-  <el-row v-if="currentUser">
+  <el-row v-if="currentUser" class="mb-1 mt-4-1">
     <el-col :span="4" class="align-center">
       <CurrentUser />
     </el-col>

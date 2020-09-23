@@ -13,6 +13,8 @@ export const state = () => ({
 export type ModuleState = ReturnType<typeof state>
 
 export const getters: GetterTree<ModuleState, RootState> = {
+  basicTokens: state => state.tokens.filter(one => true),
+  liquidityTokens: state => state.tokens.filter(one => false)
 }
 
 export const mutations: MutationTree<ModuleState> = {
@@ -27,10 +29,10 @@ export const actions: ActionTree<ModuleState, RootState> = {
   async queryAllTokens (ctx) {
     await this.$ensureApiConnected()
     // 第一次需要获取 index
-    if (ctx.state.tokenLength === -1) {
-      await ctx.dispatch('fetchTokenLengthIndex')
-    }
+    const oldLength = ctx.state.tokenLength
+    await ctx.dispatch('fetchTokenLengthIndex')
     const len = ctx.state.tokenLength
+    if (oldLength === len) return
     // 从 0 ~ length index 一路查过去
     const tokenIndexes = []
     for (let i = 0; i < len; i++) { tokenIndexes.push(i) }

@@ -11,20 +11,14 @@
       @select="menuSelected"
     >
       <el-menu-item
-        index="tokens"
-        route="/tokens"
-        :class="[{ 'is-active': currentMenu === 'tokens' }]"
+        v-for="menu in menus"
+        :key="menu.name"
+        :index="menu.name"
+        :route="menu.route || `/${menu.name}`"
+        :class="[{ 'is-active': currentMenu === menu.name }]"
       >
-        <i class="el-icon-s-finance"></i>
-        <span slot="title">Tokens</span>
-      </el-menu-item>
-      <el-menu-item
-        index="trading"
-        route="/trading/swap"
-        :class="[{ 'is-active': currentMenu === 'trading' }]"
-      >
-        <i class="el-icon-s-marketing"></i>
-        <span slot="title">Trading</span>
+        <i v-if="!!menu.icon" :class="menu.icon" />
+        <span slot="title">{{ menu.label }}</span>
       </el-menu-item>
     </el-menu>
   </el-drawer>
@@ -35,6 +29,11 @@ import { Vue, Component } from 'vue-property-decorator'
 
 @Component
 export default class SideMenuComponent extends Vue {
+  menus = [
+    { name: 'tokens', label: 'Tokens', icon: 'el-icon-s-finance' },
+    { name: 'swap', label: 'Swap', icon: 'el-icon-s-marketing' },
+    { name: 'pool', label: 'Pool', icon: 'el-icon-box' }
+  ]
   // ---- Computed --
   get isOpened () {
     return this.$store.getters['app/isSideMenuOpened'] as boolean
