@@ -11,7 +11,7 @@
           label-position="top"
           label-width="80px"
         >
-          <TokenInput
+          <ItemTokenInput
             icon="el-icon-sold-out"
             item-label="From"
             item-prop="fromAmount"
@@ -28,7 +28,7 @@
               ></el-button>
             </el-col>
           </el-row>
-          <TokenInput
+          <ItemTokenInput
             icon="el-icon-sell"
             item-label="To"
             item-prop="toAmount"
