@@ -32,11 +32,13 @@ export const actions: ActionTree<ModuleState, RootState> = {
   /**
    * 查询全部交易对
    */
-  async queryTradePairs (ctx) {
+  async queryTradePairs (ctx, payload: { isForce?: boolean } = {}) {
     await this.$ensureApiConnected()
-    // 第一次需要获取 index
-    if (ctx.state.tradePairLength === -1) {
+    if (!payload.isForce) {
+      // 第一次需要获取 index
+      const oldLength = ctx.state.tradePairLength
       await ctx.dispatch('fetchTradePairsLength')
+      if (oldLength === ctx.state.tradePairLength) return
     }
     const len = ctx.state.tradePairLength
     // 从 0 ~ length index 一路查过去
@@ -68,12 +70,20 @@ export const actions: ActionTree<ModuleState, RootState> = {
   /**
    * 获取交易对
    */
-  async fetchTradePairByBaseQuote (ctx, payload: { base: string, quote: string }) {
-    const hash = (await this.$api.query.swapModule.tradePairsHashByBaseQuote([payload.base, payload.quote])) as Option<Hash>
+  async fetchTradePairByBaseQuote (ctx, payload: { base: string, quote: string, isSetCurrent?: boolean }) {
+    let hash = (await this.$api.query.swapModule.tradePairsHashByBaseQuote([payload.base, payload.quote])) as Option<Hash>
+    if (hash.isNone) {
+      hash = (await this.$api.query.swapModule.tradePairsHashByBaseQuote([payload.quote, payload.base])) as Option<Hash>
+    }
     if (hash.isSome) {
       const tpHash = hash.unwrap()
-      const cached = ctx.state.tradePairs.find(tp => tp.tp_hash.toHex() === tpHash.toHex())
-      if (cached) return cached
+      const index = ctx.state.tradePairs.findIndex(tp => tp.tp_hash.toHex() === tpHash.toHex())
+      if (index !== -1) {
+        if (payload.isSetCurrent) {
+          ctx.commit('SET_CURRENT_TRADE_PAIR', index)
+        }
+        return ctx.state.tradePairs[index]
+      }
       // 获取实时数据
       const result = (await this.$api.query.swapModule.tradePairs(tpHash)) as Option<TradePair>
       if (result.isSome) return result.unwrap()
