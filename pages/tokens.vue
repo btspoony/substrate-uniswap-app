@@ -7,7 +7,10 @@
         :stretch="true"
       >
         <el-tab-pane name="tokens" label="Tokens">
-          <TokensTable token-key="normalTokens">
+          <TokensTable
+            token-key="normalTokens"
+            :isBalanceDetailed="true"
+          >
             <el-button
               slot="operation"
               type="primary"

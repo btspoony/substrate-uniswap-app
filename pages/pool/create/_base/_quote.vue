@@ -63,36 +63,38 @@ export default class BaseQuoteComponent extends Vue {
   get allTradePairs () { return (this.$store.state.pool as pool.ModuleState).tradePairs }
   get availableTokens () { return this.$store.getters['tokens/normalTokens'] as TokenDisplay[] }
   get availableBaseTokens () {
-    if (!this.formData.quoteTokenHash) return this.availableTokens
-    const hash = this.formData.quoteTokenHash
-    return this.availableTokens.filter(one => one.hash !== hash)
+    if (!this.quote) return this.availableTokens
+    return this.availableTokens.filter(one => one.symbol.trim() !== this.quote)
   }
   get availableQuoteTokens () {
-    if (!this.formData.baseTokenHash) return this.availableTokens
-    const hash = this.formData.baseTokenHash
-    return this.availableTokens.filter(one => one.hash !== hash)
+    if (!this.base) return this.availableTokens
+    return this.availableTokens.filter(one => one.symbol.trim() !== this.base)
   }
   get baseHash () { return this.base ? this.getTokenHash(this.base) : '' }
   set baseHash (value) {
     const symbol = this.getTokenSymbol(value)
-    if (symbol) {
+    if (symbol && symbol !== this.base) {
       this.$router.replace(`/pool/create/${symbol}${this.quote ? '/' + this.quote : ''}`)
     }
   }
   get quoteHash () { return this.quote ? this.getTokenHash(this.quote) : '' }
   set quoteHash (value) {
     const symbol = this.getTokenSymbol(value)
-    if (symbol) {
+    if (symbol && symbol !== this.quote) {
       this.$router.replace(`/pool/create/${this.base}/${symbol}`)
     }
   }
   get isButtonEnabled () {
-    return this.formData.baseTokenHash !== '' &&
-      this.formData.quoteTokenHash !== '' &&
+    return !!this.formData.baseTokenHash &&
+      !!this.formData.quoteTokenHash &&
       this.isNumber(this.formData.baseAmount) &&
       this.isNumber(this.formData.quoteAmount)
   }
-  get buttonText () { return 'Create TradePair' }
+  get buttonText () {
+    return !this.base ? 'Select a token(Base)' :
+      (!this.quote ? 'Select a token(Quote)' :
+      (!this.isButtonEnabled ? 'Input an amount' : 'Create TradePair'))
+  }
   // ---- Hooks --
   @Watch('$route')
   async onRouteChange (route: Route) {
@@ -118,7 +120,7 @@ export default class BaseQuoteComponent extends Vue {
     const base = route.params.base
     const quote = route.params.quote
     const formDataUpdate = this.formData
-    if (base !== undefined) {
+    if (base !== undefined && this.base !== base) {
       this.base = base.trim()
       const found = this.availableTokens.find(one => one.symbol.trim() === this.base)
       if (found) {
@@ -127,7 +129,7 @@ export default class BaseQuoteComponent extends Vue {
         return this.$router.replace('/pool')
       }
     }
-    if (quote !== undefined) {
+    if (quote !== undefined && this.quote !== quote) {
       this.quote = quote.trim()
       const found = this.availableQuoteTokens.find(one => one.symbol.trim() === this.quote)
       if (found) {
@@ -138,7 +140,9 @@ export default class BaseQuoteComponent extends Vue {
     }
     // 检测是否为已存在的 TradePair
     if (this.base && this.quote) {
-      const tradePair = (await this.$store.dispatch('pool/fetchTradePairByBaseQuote', { base: this.base, quote: this.quote })) as TradePair | undefined
+      const baseHash = this.formData.baseTokenHash
+      const quoteHash = this.formData.quoteTokenHash
+      const tradePair = (await this.$store.dispatch('pool/fetchTradePairByBaseQuote', { base: baseHash, quote: quoteHash })) as TradePair | undefined
       if (tradePair) {
         const targetBaseSymbol = this.getTokenSymbol(tradePair.base.toHex())
         const targetQuoteSymbol = this.getTokenSymbol(tradePair.quote.toHex())
@@ -149,8 +153,20 @@ export default class BaseQuoteComponent extends Vue {
     this.formData = formDataUpdate
   }
   // ------ UI Handler ---
-  onTryExecute () {
-    // TODO
+  async onTryExecute () {
+    const form = this.$refs['form'] as any
+    const isOk = await form.validate()
+    if (!isOk) return
+    try {
+      await this.$store.dispatch('pool/createNewTradePair', {
+        base: this.formData.baseTokenHash,
+        quote: this.formData.quoteTokenHash,
+        baseAmount: Math.floor(parseFloat(this.formData.baseAmount || '0') * 1e8),
+        quoteAmount: Math.floor(parseFloat(this.formData.quoteAmount || '0') * 1e8)
+      })
+    } catch (err) { console.error(err) }
+    form.clearValidate()
+    this.$router.replace('/pool')
   }
 }
 </script>

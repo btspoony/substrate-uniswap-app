@@ -3,7 +3,7 @@
     class="width-100-percent"
     :data="list"
   >
-    <el-table-column label="Symbol" width="80">
+    <el-table-column label="Symbol" width="100">
       <template slot-scope="scope">
         <p>{{ scope.row.token && scope.row.token.symbol }}</p>
       </template>
@@ -15,12 +15,15 @@
         </span>
       </template>
     </el-table-column>
-    <el-table-column label="Balances">
+    <el-table-column :label="isBalanceDetailed ? 'Balances' : 'Amount'">
       <template slot-scope="scope">
         <el-row v-if="scope.row.balances">
           <el-col :span="18">
-            <p>Free: {{ scope.row.balances.free | toBalance }}</p>
-            <p>Frozen: {{ scope.row.balances.frozen | toBalance }}</p>
+            <template v-if="isBalanceDetailed">
+              <p>Free: {{ scope.row.balances.free | toBalance }}</p>
+              <p>Frozen: {{ scope.row.balances.frozen | toBalance }}</p>
+            </template>
+            <p v-else>{{ scope.row.balances.free | toBalance }}</p>
           </el-col>
           <el-col :span="6" class="align-right">
             <slot name="operation"/>
@@ -40,6 +43,7 @@ import { ModuleState } from '~/store/tokens'
 type TableItem = { token: TokenDisplay, balances?: TokenBalances }
 @Component
 export default class TokenTableComponent extends Vue {
+  @Prop(Boolean) readonly isBalanceDetailed!: boolean
   @Prop(String) readonly tokenKey!: string
 
   list = [] as TableItem[]

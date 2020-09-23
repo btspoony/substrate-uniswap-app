@@ -15,7 +15,7 @@ export type ModuleState = ReturnType<typeof state>
 const mapToDisplay = (tokens: Token[]): TokenDisplay[] => tokens.map(one => ({
   hash: one.token_hash.toHex(),
   symbol: new TextDecoder().decode(one.symbol.toU8a()),
-  total_supply: one.total_supply.toNumber(),
+  total_supply: one.total_supply.toHuman(),
   ttype: one.ttype.isNormal ? 'Normal' : 'Liquidity'
 }))
 export const getters: GetterTree<ModuleState, RootState> = {

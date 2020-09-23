@@ -3,7 +3,8 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { Vue, Component, Watch } from 'vue-property-decorator'
+import * as pool from '~/store/pool'
 
 @Component({
   async fetch (ctx) {
@@ -13,7 +14,14 @@ import { Vue, Component } from 'vue-property-decorator'
 })
 export default class PageComponent extends Vue {
   // ---- Computed --
-  // NOTHING
+  get tradePairs () { return (this.$store.state.pool as pool.ModuleState).tradePairs }
+  get tpLength () { return (this.$store.state.pool as pool.ModuleState).tradePairLength }
+  @Watch('tpLength')
+  async onTokenLengthChange(newLength: number, oldLength: number) {
+    if (newLength > oldLength) {
+      await this.$store.dispatch('pool/queryTradePairs', { isForce: true })
+    }
+  }
   // ---- Hooks --
   // NOTHING
   // ------ UI Handler ---

@@ -3,7 +3,8 @@
     <el-col :span="22" :offset="1">
       <TokensTable
         class="mb-8-1"
-        token-key="liquidityTokens"
+        tokenKey="liquidityTokens"
+        :isBalanceDetailed="false"
       >
         <el-button
           slot="operation"

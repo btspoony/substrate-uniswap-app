@@ -30,7 +30,6 @@ export default class BaseQuoteComponent extends Vue {
   }
   // ------ Methods ---
   updateRoute (path: string) {
-    console.log(222, path)
     // TODO
   }
 }

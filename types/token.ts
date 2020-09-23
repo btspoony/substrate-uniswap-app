@@ -28,7 +28,7 @@ export const TokenDef = {
 export type TokenDisplay = {
   hash: string,
   symbol: string,
-  total_supply: number,
+  total_supply: string,
   ttype: 'Normal' | 'Liquidity'
 }
 
