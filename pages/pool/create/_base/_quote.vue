@@ -39,7 +39,9 @@
 
 <script lang="ts">
 import { Route } from 'vue-router'
+import { mixins } from 'vue-class-component'
 import { Vue, Component, Watch } from 'vue-property-decorator'
+import BaseQuote from '~/components/mixins/baseQuote'
 import { TokenDisplay, TradePair } from '~/types'
 import * as pool from '~/store/pool'
 
@@ -52,16 +54,19 @@ type FormData = {
 
 @Component({
   asyncData ({ params }) {
-    return { base: params.base, quote: params.quote }
+    return {
+      base: params.base,
+      quote: params.quote,
+      pathRoot: '/pool/create',
+      pathFallbackNoExists: '/pool',
+      pathFallbackExists: '/pool/add'
+    }
   }
 })
-export default class BaseQuoteComponent extends Vue {
-  base?: string
-  quote?: string
+export default class BaseQuoteComponent extends mixins(BaseQuote) {
   formData: FormData = {}
   // ---- Computed --
   get allTradePairs () { return (this.$store.state.pool as pool.ModuleState).tradePairs }
-  get availableTokens () { return this.$store.getters['tokens/normalTokens'] as TokenDisplay[] }
   get availableBaseTokens () {
     if (!this.quote) return this.availableTokens
     return this.availableTokens.filter(one => one.symbol.trim() !== this.quote)
@@ -69,20 +74,6 @@ export default class BaseQuoteComponent extends Vue {
   get availableQuoteTokens () {
     if (!this.base) return this.availableTokens
     return this.availableTokens.filter(one => one.symbol.trim() !== this.base)
-  }
-  get baseHash () { return this.base ? this.getTokenHash(this.base) : '' }
-  set baseHash (value) {
-    const symbol = this.getTokenSymbol(value)
-    if (symbol && symbol !== this.base) {
-      this.$router.replace(`/pool/create/${symbol}${this.quote ? '/' + this.quote : ''}`)
-    }
-  }
-  get quoteHash () { return this.quote ? this.getTokenHash(this.quote) : '' }
-  set quoteHash (value) {
-    const symbol = this.getTokenSymbol(value)
-    if (symbol && symbol !== this.quote) {
-      this.$router.replace(`/pool/create/${this.base}/${symbol}`)
-    }
   }
   get isButtonEnabled () {
     return !!this.formData.baseTokenHash &&
@@ -96,61 +87,11 @@ export default class BaseQuoteComponent extends Vue {
       (!this.isButtonEnabled ? 'Input an amount' : 'Create TradePair'))
   }
   // ---- Hooks --
-  @Watch('$route')
-  async onRouteChange (route: Route) {
-    await this.updateRoute(route)
-  }
-  async mounted () {
-    await this.updateRoute(this.$route)
-  }
+  // NOTHING
   // ------ Methods ---
   isNumber (value?: string) {
     const parsed = parseFloat(value || '')
     return !isNaN(parsed) && `${parsed}` === value
-  }
-  getTokenSymbol (hash: string) {
-    const found = this.availableTokens.find(one => one.hash === hash)
-    return found ? found.symbol.trim() : ''
-  }
-  getTokenHash (symbol: string) {
-    const found = this.availableTokens.find(one => one.symbol.trim() === symbol)
-    return found ? found.hash : ''
-  }
-  async updateRoute (route: Route) {
-    const base = route.params.base
-    const quote = route.params.quote
-    const formDataUpdate = this.formData
-    if (base !== undefined && this.base !== base) {
-      this.base = base.trim()
-      const found = this.availableTokens.find(one => one.symbol.trim() === this.base)
-      if (found) {
-        formDataUpdate.baseTokenHash = found.hash
-      } else {
-        return this.$router.replace('/pool')
-      }
-    }
-    if (quote !== undefined && this.quote !== quote) {
-      this.quote = quote.trim()
-      const found = this.availableQuoteTokens.find(one => one.symbol.trim() === this.quote)
-      if (found) {
-        formDataUpdate.quoteTokenHash = found.hash
-      } else {
-        return this.$router.replace('/pool')
-      }
-    }
-    // 检测是否为已存在的 TradePair
-    if (this.base && this.quote) {
-      const baseHash = this.formData.baseTokenHash
-      const quoteHash = this.formData.quoteTokenHash
-      const tradePair = (await this.$store.dispatch('pool/fetchTradePairByBaseQuote', { base: baseHash, quote: quoteHash })) as TradePair | undefined
-      if (tradePair) {
-        const targetBaseSymbol = this.getTokenSymbol(tradePair.base.toHex())
-        const targetQuoteSymbol = this.getTokenSymbol(tradePair.quote.toHex())
-        return this.$router.replace(`/pool/add/${targetBaseSymbol}/${targetQuoteSymbol}`)
-      }
-    }
-    // 更新 formData
-    this.formData = formDataUpdate
   }
   // ------ UI Handler ---
   async onTryExecute () {
