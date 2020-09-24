@@ -21,6 +21,7 @@ const mapToDisplay = (tokens: Token[]): TokenDisplay[] => tokens.map(one => ({
   ttype: one.ttype.isNormal ? 'Normal' : 'Liquidity'
 }))
 export const getters: GetterTree<ModuleState, RootState> = {
+  isBalanceDirty: state => state.balanceDirty,
   activeToken: state => state.activeTokenIndex !== -1 ? state.tokens[state.activeTokenIndex] : null,
   normalTokens: state => state.tokens.filter(one => one.ttype === 'Normal'),
   liquidityTokens: state => state.tokens.filter(one => one.ttype === 'Liquidity')

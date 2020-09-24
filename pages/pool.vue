@@ -14,7 +14,6 @@ import * as pool from '~/store/pool'
 })
 export default class PageComponent extends Vue {
   // ---- Computed --
-  get tradePairs () { return (this.$store.state.pool as pool.ModuleState).tradePairs }
   get tpLength () { return (this.$store.state.pool as pool.ModuleState).tradePairLength }
   @Watch('tpLength')
   async onTokenLengthChange(newLength: number, oldLength: number) {

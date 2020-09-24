@@ -6,12 +6,14 @@
         tokenKey="liquidityTokens"
         :isBalanceDetailed="false"
       >
-        <el-button
-          slot="operation"
-          type="primary"
-          icon="el-icon-s-finance"
-          @click="removeLiquidityDialogVisible = true"
-        ></el-button>
+        <template v-slot:operation="{ token }">
+          <el-button
+            slot="operation"
+            type="primary"
+            icon="el-icon-receiving"
+            @click="openRemoveLiquidityDialogue(token)"
+          ></el-button>
+        </template>
       </TokensTable>
       <el-row :gutter="8">
         <el-col :span="12">
@@ -30,13 +32,14 @@
           >ADD LIQUIDITY</el-button>
         </el-col>
       </el-row>
+      <RemoveLiquidity :dialog-visible.sync="removeLiquidityDialogVisible"/>
     </el-col>
   </el-row>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import { User } from '~/types'
+import { User, TokenDisplay } from '~/types'
 import { ModuleState } from '~/store/pool'
 
 @Component
@@ -53,6 +56,9 @@ export default class RedirectComponent extends Vue {
   // ---- Methods --
   // NOTHING
   // ---- UI Handler --
-  // NOTHING
+  openRemoveLiquidityDialogue (picked: { token: TokenDisplay }) {
+    this.$store.commit('tokens/SET_ACTIVE_TOKEN', picked.token)
+    this.removeLiquidityDialogVisible = true
+  }
 }
 </script>

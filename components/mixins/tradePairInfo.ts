@@ -9,9 +9,10 @@ const currentTradeState: { balances?: TokenBalances } = Vue.observable({ balance
 export default class TradePairInfo extends Vue {
   // ---- Computed --
   get availableTokens () { return this.$store.getters['tokens/normalTokens'] as TokenDisplay[] }
+  get currentUser () { return this.$store.getters['currentUser'] as User }
   get currentTradePair () { return this.$store.getters['pool/currentTradePair'] as TradePair }
   get currentTradePairBalances () { return currentTradeState.balances }
-  get currentUser () { return this.$store.getters['currentUser'] as User }
+  get isBalanceDirty () { return this.$store.getters['tokens/isBalanceDirty'] as boolean }
   // ---- Hooks --
   @Watch('currentUser')
   async onCurrentUserChange() {
@@ -19,6 +20,10 @@ export default class TradePairInfo extends Vue {
   }
   @Watch('currentTradePair')
   async onCurrentTradePairChange() {
+    await this.refreshTradePairBalances()
+  }
+  @Watch('isBalanceDirty')
+  async onBalanceDirty() {
     await this.refreshTradePairBalances()
   }
   // ------ Methods ---
@@ -30,16 +35,34 @@ export default class TradePairInfo extends Vue {
     const found = this.availableTokens.find(one => one.symbol.trim() === symbol)
     return found ? found.hash : ''
   }
+  /**
+   * 获取并设置当前 TradePair
+   */
   async fetchCurrentTradePair (base?: string, quote?: string) {
-    this.$store.commit('pool/SET_CURRENT_TRADE_PAIR', -1)
+    await this.fetchCurrentTradePairByHash(
+      base ? this.getTokenHash(base): undefined,
+      quote ? this.getTokenHash(quote) :undefined
+    )
+  }
+  /**
+   * 获取并设置当前 TradePair
+   */
+  async fetchCurrentTradePairByHash (baseHash?: string, quoteHash?: string) {
+    this.clearCurrentTradePair()
     // 检测是否为已存在的 TradePair
-    if (base && quote) {
+    if (baseHash && quoteHash) {
       await this.$store.dispatch('pool/fetchTradePairByBaseQuote', {
-        base: this.getTokenHash(base),
-        quote: this.getTokenHash(quote),
+        base: baseHash,
+        quote: quoteHash,
         isSetCurrent: true
       })
     }
+  }
+  /**
+   * 移除当前 TradePair
+   */
+  clearCurrentTradePair () {
+    this.$store.commit('pool/SET_CURRENT_TRADE_PAIR', -1)
   }
   async refreshTradePairBalances () {
     if (!this.currentUser) return
