@@ -32,7 +32,6 @@
           class="width-100-percent"
           v-model="dialogData.totalSupply"
           controls-position="right"
-          :step="1e6"
           :min="1"
           :max="1e30"
         ></el-input-number>
@@ -50,14 +49,14 @@ import { Vue, Component, PropSync, Watch } from 'vue-property-decorator'
 
 @Component
 export default class NewTokenDialogueComponent extends Vue {
-  dialogData = {}
+  dialogData = { symbol: '', totalSupply: 10 }
   // ---- Computed --
   @PropSync('dialogVisible', { type: Boolean }) visible!: boolean
   // ---- Watch --
   @Watch('dialogVisible')
   onVisibleChange (newVal: boolean, oldVal: boolean) {
     if (newVal) {
-      this.dialogData = { symbol: '', totalSupply: 1e9 }
+      this.dialogData = { symbol: '', totalSupply: 10 }
     }
   }
   // ---- Hooks --
@@ -71,7 +70,10 @@ export default class NewTokenDialogueComponent extends Vue {
     if (!isOk) return
     // 验证通过，调用请求
     try {
-      await this.$store.dispatch('tokens/createNewToken', this.dialogData)
+      await this.$store.dispatch('tokens/createNewToken', {
+        symbol: this.dialogData.symbol,
+        totalSupply: this.dialogData.totalSupply * 1e8
+      })
     } catch (err) { console.error(err) }
     form.clearValidate()
     this.visible = false

@@ -26,7 +26,7 @@
             <p v-else>{{ scope.row.balances.free | toBalance }}</p>
           </el-col>
           <el-col :span="6" class="align-right">
-            <slot name="operation"/>
+            <slot name="operation" v-bind:token="scope.row"/>
           </el-col>
         </el-row>
         <span v-else>loading...</span>
@@ -51,6 +51,7 @@ export default class TokenTableComponent extends Vue {
   get currentUser () { return this.$store.getters['currentUser'] as User }
   get allTokenLength () { return (this.$store.state.tokens as ModuleState).tokenLength }
   get availableTokens () { return this.$store.getters[`tokens/${this.tokenKey}`] as TokenDisplay[] }
+  get balanceDirty () { return (this.$store.state.tokens as ModuleState).balanceDirty }
   // ---- Watch --
   @Watch('currentUser')
   async onCurrentUserChange() {
@@ -65,6 +66,13 @@ export default class TokenTableComponent extends Vue {
   @Watch('availableTokens', { immediate: true, deep: true })
   async onTokensChange(tokens: TokenDisplay[], oldTokens: TokenDisplay[]) {
     await this.queryTokenBalances(tokens)
+  }
+  @Watch('balanceDirty')
+  async onBalanceDirtyChange(newVal: boolean) {
+    if (newVal) {
+      await this.queryTokenBalances(this.availableTokens)
+      this.$store.commit('tokens/SET_BALANCE_DIRTY', false)
+    }
   }
   // ---- Hooks --
   async mounted () {

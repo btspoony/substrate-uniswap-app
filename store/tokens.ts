@@ -7,7 +7,9 @@ import { User, Token, TokenBalances, TokenDisplay } from '~/types'
 
 export const state = () => ({
   tokens: [] as TokenDisplay[],
-  tokenLength: -1
+  tokenLength: -1,
+  activeTokenIndex: -1,
+  balanceDirty: false
 })
 
 export type ModuleState = ReturnType<typeof state>
@@ -19,13 +21,21 @@ const mapToDisplay = (tokens: Token[]): TokenDisplay[] => tokens.map(one => ({
   ttype: one.ttype.isNormal ? 'Normal' : 'Liquidity'
 }))
 export const getters: GetterTree<ModuleState, RootState> = {
+  activeToken: state => state.activeTokenIndex !== -1 ? state.tokens[state.activeTokenIndex] : null,
   normalTokens: state => state.tokens.filter(one => one.ttype === 'Normal'),
   liquidityTokens: state => state.tokens.filter(one => one.ttype === 'Liquidity')
 }
 
 export const mutations: MutationTree<ModuleState> = {
   SETUP_ALL_TOKENS: (state, payload: { tokens: TokenDisplay[] }) => (state.tokens = payload.tokens),
-  SET_TOKENS_LENGTH: (state, payload: { len: number }) => (state.tokenLength = payload.len)
+  SET_TOKENS_LENGTH: (state, payload: { len: number }) => (state.tokenLength = payload.len),
+  SET_ACTIVE_TOKEN: (state, payload: TokenDisplay) => {
+    const foundIndex = state.tokens.findIndex(token => token.hash === payload.hash)
+    if (state.activeTokenIndex !== foundIndex) {
+      state.activeTokenIndex = foundIndex
+    }
+  },
+  SET_BALANCE_DIRTY: (state, payload: boolean) => (state.balanceDirty = !!payload)
 }
 
 export const actions: ActionTree<ModuleState, RootState> = {
@@ -77,7 +87,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
     // 交易签名并发送
     const keypair = (ctx.rootGetters['currentUser'] as User)?.keypair
     await extrinsic.signAndSend(keypair, this.$txSendingCallback(async result => {
-      // 当 finalized 时，获取最新的 token length
+      // 获取最新的 token length
       if (result.isInBlock) {
         await ctx.dispatch('fetchTokenLengthIndex')
       }
@@ -90,10 +100,14 @@ export const actions: ActionTree<ModuleState, RootState> = {
   async transferToken (ctx, payload: { tokenHash: string, to: string, amount: number }) {
     await this.$ensureApiConnected()
     // 构建交易
-    const extrinsic = this.$api.tx.tokenModule.transfer(payload.tokenHash, payload.to, payload.amount)
+    const extrinsic = this.$api.tx.tokenModule.transfer(payload.tokenHash, payload.to, payload.amount, null)
     // 交易签名并发送
     const keypair = (ctx.rootGetters['currentUser'] as User)?.keypair
-    await extrinsic.signAndSend(keypair, this.$txSendingCallback())
+    await extrinsic.signAndSend(keypair, this.$txSendingCallback(async result => {
+      if (result.isInBlock) {
+        await ctx.commit('SET_BALANCE_DIRTY', true)
+      }
+    }))
   },
   /**
    * 查询代币余额

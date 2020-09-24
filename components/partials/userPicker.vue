@@ -23,9 +23,7 @@ import { User } from '~/types'
 @Component
 export default class UserPickerComponent extends Vue {
   // ---- Computed --
-  get users () {
-    return this.$store.state.availableUsers as User[]
-  }
+  get users () { return this.$store.state.availableUsers as User[] }
   // ---- Hooks --
   async mounted () {
     // NOTHING

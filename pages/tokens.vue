@@ -11,12 +11,13 @@
             token-key="normalTokens"
             :isBalanceDetailed="true"
           >
-            <el-button
-              slot="operation"
-              type="primary"
-              icon="el-icon-s-promotion"
-              @click="transferTokenDialogVisible = true"
-            ></el-button>
+            <template v-slot:operation="{ token }">
+              <el-button
+                type="primary"
+                icon="el-icon-s-promotion"
+                @click="openTransferTokenDialogue(token)"
+              ></el-button>
+            </template>
           </TokensTable>
           <el-button
             class="width-100-percent"
@@ -38,7 +39,7 @@
 
 <script lang="ts">
 import { Vue, Component, Watch } from 'vue-property-decorator'
-import { User } from '~/types'
+import { User, TokenDisplay } from '~/types'
 import { ModuleState } from '~/store/tokens'
 
 @Component({
@@ -59,6 +60,9 @@ export default class PageComponent extends Vue {
   // ------ Methods ---
   // NOTHING
   // ------ UI Handler ---
-  // NOTHING
+  openTransferTokenDialogue (picked: { token: TokenDisplay }) {
+    this.$store.commit('tokens/SET_ACTIVE_TOKEN', picked.token)
+    this.transferTokenDialogVisible = true
+  }
 }
 </script>
