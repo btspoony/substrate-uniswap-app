@@ -7,7 +7,6 @@ import { TokenDisplay, TradePair } from '~/types'
 export default class BaseQuote extends Vue {
   pathRoot: string = '/pool/create'
   pathFallbackNoExists?: string
-  pathFallbackExists?: string
   base?: string
   quote?: string
   // ---- Computed --
@@ -59,20 +58,14 @@ export default class BaseQuote extends Vue {
         return this.$router.replace(this.pathFallbackNoExists)
       }
     }
+    this.$store.commit('pool/SET_CURRENT_TRADE_PAIR', -1)
     // 检测是否为已存在的 TradePair
-    if (this.base && this.quote && this.pathFallbackExists) {
-      const tradePair = (await this.$store.dispatch('pool/fetchTradePairByBaseQuote', {
+    if (this.base && this.quote) {
+      await this.$store.dispatch('pool/fetchTradePairByBaseQuote', {
         base: this.baseHash,
-        quote: this.quoteHash
-      })) as TradePair | undefined
-      if (tradePair) {
-        const targetBaseSymbol = this.getTokenSymbol(tradePair.base.toHex())
-        const targetQuoteSymbol = this.getTokenSymbol(tradePair.quote.toHex())
-        // 下一Tick 转路由
-        Vue.nextTick(() => {
-          this.$router.replace(`${this.pathFallbackExists}/${targetBaseSymbol}/${targetQuoteSymbol}`)
-        })
-      }
+        quote: this.quoteHash,
+        isSetCurrent: true
+      })
     }
   }
 }

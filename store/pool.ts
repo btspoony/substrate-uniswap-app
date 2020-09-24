@@ -13,14 +13,14 @@ export const state = () => ({
 export type ModuleState = ReturnType<typeof state>
 
 export const getters: GetterTree<ModuleState, RootState> = {
-  currentTradePair: state => state.tradePairs[state.currentIndex]
+  currentTradePair: state => state.currentIndex >= 0 ? state.tradePairs[state.currentIndex] : null
 }
 
 export const mutations: MutationTree<ModuleState> = {
   SETUP_ALL_TRADE_PAIRS: (state, payload: { tradePairs: TradePair[] }) => (state.tradePairs = payload.tradePairs),
   SET_CURRENT_TRADE_PAIR: (state, index: number) => {
     const current = state.tradePairs[index]
-    if (!current) {
+    if (!current && index >= 0) {
       throw new Error(`failed to set trade pair, index should be [0~${state.tradePairs.length - 1}] instead of ${index}`)
     }
     state.currentIndex = index

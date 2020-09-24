@@ -51,12 +51,11 @@ import * as pool from '~/store/pool'
       base: params.base,
       quote: params.quote,
       pathRoot: '/pool/create',
-      pathFallbackNoExists: '/pool',
-      pathFallbackExists: '/pool/add'
+      pathFallbackNoExists: '/pool'
     }
   }
 })
-export default class BaseQuoteComponent extends mixins(BaseQuote) {
+export default class CreateBaseQuoteComponent extends mixins(BaseQuote) {
   formData = {
     baseTokenHash: '',
     baseAmount: '',
@@ -64,6 +63,7 @@ export default class BaseQuoteComponent extends mixins(BaseQuote) {
     quoteAmount: ''
   }
   // ---- Computed --
+  get currentTradePair () { return this.$store.getters['pool/currentTradePair'] as TradePair }
   get availableBaseTokens () {
     if (!this.quote) return this.availableTokens
     return this.availableTokens.filter(one => one.symbol.trim() !== this.quote)
@@ -91,6 +91,17 @@ export default class BaseQuoteComponent extends mixins(BaseQuote) {
   @Watch('quoteHash')
   onQuoteHashChange (val: string) {
     this.formData.quoteTokenHash = val
+  }
+  @Watch('currentTradePair')
+  onTradePairChange (val?: TradePair) {
+    if (val) {
+      const targetBaseSymbol = this.getTokenSymbol(val.base.toHex())
+      const targetQuoteSymbol = this.getTokenSymbol(val.quote.toHex())
+      // 下一Tick 转路由
+      Vue.nextTick(() => {
+        this.$router.replace(`/pool/add/${targetBaseSymbol}/${targetQuoteSymbol}`)
+      })
+    }
   }
   async mounted () {
     this.formData.baseTokenHash = this.baseHash
