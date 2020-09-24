@@ -31,10 +31,6 @@ export default class BaseQuote extends mixins(TradePairInfo) {
     await this.updateRoute(route)
   }
   // ------ Methods ---
-  isNumber (value?: string) {
-    const parsed = parseFloat(value || '')
-    return !isNaN(parsed) && `${parsed}` === value
-  }
   async updateRoute (route: Route) {
     const base = route.params.base
     const quote = route.params.quote

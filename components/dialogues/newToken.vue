@@ -2,7 +2,7 @@
   <el-dialog
     title="New Token"
     :visible.sync="visible"
-    width="50%">
+    width="600px">
     <el-form
       ref="form"
       :model="dialogData"
@@ -29,7 +29,6 @@
         ]"
       >
         <el-input-number
-          class="width-100-percent"
           v-model="dialogData.totalSupply"
           controls-position="right"
           :min="1"

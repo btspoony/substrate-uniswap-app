@@ -1,19 +1,14 @@
 <template>
   <el-dialog
     :visible.sync="visible"
-    :title="`Remove Liquidity -${currentTokenSymbol}`"
-    width="50%">
+    :title="`Remove Liquidity -${currentTradePairSymbol}`"
+    width="600px">
     <el-form
       ref="form"
       :model="dialogData"
       label-width="100px"
     >
-      <el-form-item
-        v-if="currentTradePairBalances"
-        label="Information"
-      >
-        <span><strong>Owned: </strong>{{ ownedBalance }}</span>
-      </el-form-item>
+      <ItemCurrentTradePairInfo />
       <el-form-item
         label="Amount"
         prop="amount"
@@ -22,11 +17,10 @@
         ]"
       >
         <el-input-number
-          class="width-100-percent"
           v-model="dialogData.amount"
           controls-position="right"
           :min="0"
-          :max="ownedBalance"
+          :max="ownedLTBalance"
         ></el-input-number>
       </el-form-item>
     </el-form>
@@ -55,12 +49,8 @@ export default class RemoveLiquidityDialogueComponent extends mixins(TradePairIn
   // ---- Computed --
   get allTradePairs () { return (this.$store.state.pool as pool.ModuleState).tradePairs }
   get currentToken () { return this.$store.getters['tokens/activeToken'] as TokenDisplay || { symbol: '' } }
-  get currentTokenSymbol () {
-    return this.currentTradePair ? this.getTokenSymbol(this.currentTradePair.liquidity_token_hash.toHex()) : ''
-  }
-  get ownedBalance () { return this.currentTradePairBalances ? this.currentTradePairBalances.free.toNumber() / 1e8 : 0 }
   get isExecutable () {
-    return this.dialogData.amount > 0 && this.dialogData.amount <= this.ownedBalance
+    return this.dialogData.amount > 0 && this.dialogData.amount <= this.ownedLTBalance
   }
   // ---- Watch --
   @Watch('currentToken')
@@ -99,7 +89,7 @@ export default class RemoveLiquidityDialogueComponent extends mixins(TradePairIn
     try {
       const requestBody: pool.PayloadRemoveLiquidity = {
         hash: this.currentTradePair.tp_hash.toHex(),
-        ltAmount: this.dialogData.amount * 1e8
+        ltAmount: Math.floor(this.dialogData.amount * 1e8)
       }
       await this.$store.dispatch('pool/removeLiquidityFromTradePair', requestBody)
     } catch (err) { console.error(err) }

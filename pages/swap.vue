@@ -5,18 +5,22 @@
       :xs="{ span: 20, offset: 2 }"
     >
       <el-card class="width-100-percent">
+        <div slot="header" class="clearfix">
+          <h2>{{ isBuy ? 'Buy' : 'Sell' }}</h2>
+        </div>
         <el-form
           ref="form"
           :model="formData"
           label-position="top"
           label-width="80px"
         >
+          <ItemCurrentTradePairInfo />
           <ItemTokenInput
             icon="el-icon-sold-out"
-            item-label="From"
-            item-prop="fromAmount"
-            :amount.sync="formData.fromAmount"
-            :hash.sync="formData.fromTokenHash"
+            :item-label="isBuy ? 'From' : 'To'"
+            item-prop="baseAmount"
+            :amount.sync="formData.baseAmount"
+            :hash.sync="formData.baseTokenHash"
             :tokens="availableFromTokens"
           />
           <el-row>
@@ -30,10 +34,10 @@
           </el-row>
           <ItemTokenInput
             icon="el-icon-sell"
-            item-label="To"
-            item-prop="toAmount"
-            :amount.sync="formData.toAmount"
-            :hash.sync="formData.toTokenHash"
+            :item-label="!isBuy ? 'From' : 'To'"
+            item-prop="quoteAmount"
+            :amount.sync="formData.quoteAmount"
+            :hash.sync="formData.quoteTokenHash"
             :tokens="availableToTokens"
           />
           <el-form-item>
@@ -52,16 +56,16 @@
 
 <script lang="ts">
 import { mixins } from 'vue-class-component'
-import { Component } from 'vue-property-decorator'
+import { Component, Watch } from 'vue-property-decorator'
 import TradePairInfo from '~/components/mixins/tradePairInfo'
 import { TokenDisplay, TradePair } from '~/types'
 import * as pool from '~/store/pool'
 
 type FormData = {
-  fromTokenHash?: string,
-  fromAmount?: string,
-  toTokenHash?: string,
-  toAmount?: string
+  baseTokenHash?: string,
+  baseAmount?: string,
+  quoteTokenHash?: string,
+  quoteAmount?: string
 }
 
 @Component({
@@ -76,73 +80,102 @@ export default class SwapPageComponent extends mixins(TradePairInfo) {
   // ---- Computed --
   get allTradePairs () { return (this.$store.state.pool as pool.ModuleState).tradePairs }
   get availableFromTokens () {
-    if (!this.formData.toTokenHash) return this.availableTokens
-    const toHash = this.formData.toTokenHash
+    if (!this.formData.quoteTokenHash) return this.availableTokens
+    const toHash = this.formData.quoteTokenHash
     return this.availableTokens.filter(one => one.hash !== toHash)
   }
   get availableToTokens () {
     const availableHashs = this.allTradePairs.reduce((result, curr) => {
       const quoteHash = curr.quote.toHex()
       if (result.includes(quoteHash)) return result
-      if (!this.formData.fromTokenHash) {
+      if (!this.formData.baseTokenHash) {
         result.push(quoteHash)
       } else {
         const baseHash = curr.base.toHex()
-        if (this.formData.fromTokenHash === baseHash) {
+        if (this.formData.baseTokenHash === baseHash) {
           result.push(quoteHash)
         }
       }
       return result
     }, [] as string[])
-    return this.availableTokens.filter(one => availableHashs.includes(one.hash))
+    const allValues = this.availableTokens.filter(one => availableHashs.includes(one.hash))
+    if (allValues.length === 0) {
+      this.formData.quoteTokenHash = ''
+    }
+    return allValues
   }
-  get isFromAmountValid () { return this.isNumber(this.formData.fromAmount) }
-  get isToAmountValid () { return this.isNumber(this.formData.toAmount) }
   get isSwapButtonEnabled () {
-    return this.formData.fromTokenHash !== '' &&
-      this.formData.toTokenHash !== '' &&
-      this.isFromAmountValid &&
-      this.isToAmountValid
+    return this.currentTradePair &&
+      this.formData.baseTokenHash !== '' &&
+      this.formData.quoteTokenHash !== '' &&
+      this.isNumber(this.formData.baseAmount) &&
+      this.isNumber(this.formData.quoteAmount)
   }
   get swapButtonText () {
-    const noFromToken = this.formData.fromTokenHash === ''
-    const noToToken = this.formData.toTokenHash === ''
-    return noFromToken ? 'Select a token(From)' :
-      (noToToken ? 'Select a token(To)' :
-      (!this.isFromAmountValid || !this.isToAmountValid ? 'Input an amount' : 'Swap'))
+    const noFromToken = this.formData.baseTokenHash === ''
+    const noToToken = this.formData.quoteTokenHash === ''
+    return noFromToken ? 'Select a token(Base)' :
+      (noToToken || !this.currentTradePair ? 'Select a token(Quote)' :
+      (!this.isNumber(this.formData.baseAmount) || !this.isNumber(this.formData.quoteAmount) ? 'Input an amount' : 'Swap'))
+  }
+  // ---- Watch --
+  @Watch('formData.baseTokenHash')
+  async onFormDataBaseChange (newVal: string) {
+    await this.tryUpdateCurrentTradePair(newVal, this.formData.quoteTokenHash)
+  }
+  @Watch('formData.quoteTokenHash')
+  async onFormDataQuoteChange (newVal: string) {
+    await this.tryUpdateCurrentTradePair(this.formData.baseTokenHash, newVal)
   }
   // ---- Hooks --
   async mounted () {
     this.resetData()
     if (this.availableTokens.length > 0) {
       const firstToken = this.availableTokens[0]
-      this.formData.fromTokenHash = firstToken.hash
+      this.formData.baseTokenHash = firstToken.hash
     }
   }
   // ------ Methods ---
   resetData () {
+    this.clearCurrentTradePair()
     this.formData = {
-      fromTokenHash: '',
-      fromAmount: '',
-      toTokenHash: '',
-      toAmount: ''
+      baseTokenHash: '',
+      baseAmount: '',
+      quoteTokenHash: '',
+      quoteAmount: ''
     }
   }
-  isNumber (value?: string) {
-    const parsed = parseFloat(value || '')
-    return !isNaN(parsed) && `${parsed}` === value
+  async tryUpdateCurrentTradePair (baseHash?: string, quoteHash?: string) {
+    if (baseHash && quoteHash) {
+      await this.fetchCurrentTradePairByHash(baseHash, quoteHash)
+    } else {
+      this.clearCurrentTradePair()
+    }
   }
   // ------ UI Handler ---
   onChangeFromTo () {
-    this.formData = {
-      fromTokenHash: this.formData.toTokenHash,
-      fromAmount: this.formData.toAmount,
-      toTokenHash: this.formData.fromTokenHash,
-      toAmount: this.formData.fromAmount
-    }
+    this.isBuy = !this.isBuy
   }
-  onTrySwap () {
-    // TODO
+  async onTrySwap () {
+    const form = this.$refs['form'] as any
+    const isOk = await form.validate()
+    if (!isOk) return
+    // 验证通过，调用请求
+    try {
+      if (this.isBuy) {
+        const requestBody: pool.PayloadBuy = {
+          hash: this.currentTradePair.tp_hash.toHex(),
+          baseAmount: Math.floor(parseFloat(this.formData.baseAmount || '0') * 1e8)
+        }
+        await this.$store.dispatch('pool/buyTokenInTradePair', requestBody)
+      } else {
+        const requestBody: pool.PayloadSell = {
+          hash: this.currentTradePair.tp_hash.toHex(),
+          quoteAmount: Math.floor(parseFloat(this.formData.quoteAmount || '0') * 1e8)
+        }
+        await this.$store.dispatch('pool/sellTokenInTradePair', requestBody)
+      }
+    } catch (err) { console.error(err) }
   }
 }
 </script>
