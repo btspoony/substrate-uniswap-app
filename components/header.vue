@@ -16,40 +16,22 @@
       <h2 class="ellipsis-word">{{ currentUser ? currentUser.address : 'No User' }}</h2>
     </el-col>
     <el-col :span="3">
-      <el-dropdown
-        class="cursor-pointer"
-        @command="handleCommand"
-      >
+      <UserPicker @command="handleCommand">
         <CurrentUser />
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item
-            v-for="(user, i) in users"
-            :key="user.address"
-            :command="i"
-          >
-            {{ user.keypair && user.keypair.meta ? user.keypair.meta.name : user.address }}
-          </el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
+      </UserPicker>
     </el-col>
   </el-row>
 </template>
 
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
-import Identicon from '@polkadot/vue-identicon'
 import { User } from '~/types'
 
-@Component({
-  components: { Identicon }
-})
+@Component
 export default class HeaderComponent extends Vue {
   // ---- Computed --
   get currentUser () {
     return this.$store.getters['currentUser'] as User
-  }
-  get users () {
-    return this.$store.state.availableUsers as User[]
   }
   // ---- Hooks --
   async mounted () {
