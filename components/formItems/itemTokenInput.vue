@@ -3,7 +3,7 @@
     :label="itemLabel"
     :prop="itemProp"
     :rules="[
-      { required: true, validator: isValueNumber, trigger: 'blur' }
+      { required: true, validator: isValueNumber, trigger: 'change' }
     ]"
   >
     <el-input

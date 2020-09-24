@@ -26,10 +26,6 @@
             @click="newTokenDialogVisible = true"
           >ADD TOKEN</el-button>
         </el-tab-pane>
-        <el-tab-pane name="activities" label="Activities">
-          <p>Content of Activities.</p>
-          <p>(Working in progress...)</p>
-        </el-tab-pane>
         <NewToken :dialog-visible.sync="newTokenDialogVisible" />
         <TransferToken :dialog-visible.sync="transferTokenDialogVisible" />
       </el-tabs>

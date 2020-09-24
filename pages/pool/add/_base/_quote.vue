@@ -114,20 +114,14 @@ export default class AddBaseQuoteComponent extends mixins(BaseQuote) {
       (!this.isButtonEnabled ? 'Input an amount' : 'Add Liquidity'))
   }
   // ---- Hooks --
-  @Watch('baseHash')
-  onBaseHashChange (val: string) {
-    this.formData.baseTokenHash = val
-  }
-  @Watch('quoteHash')
-  onQuoteHashChange (val: string) {
-    this.formData.quoteTokenHash = val
-  }
   @Watch('base')
   onBaseChange() {
+    this.formData.baseTokenHash = this.baseHash
     this.ensureExists()
   }
   @Watch('quote')
   onQuoteChange() {
+    this.formData.quoteTokenHash = this.quoteHash
     this.ensureExists()
   }
   async mounted () {

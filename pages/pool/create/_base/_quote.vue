@@ -83,14 +83,6 @@ export default class CreateBaseQuoteComponent extends mixins(BaseQuote) {
       (!this.isButtonEnabled ? 'Input an amount' : 'Create TradePair'))
   }
   // ---- Hooks --
-  @Watch('baseHash')
-  onBaseHashChange (val: string) {
-    this.formData.baseTokenHash = val
-  }
-  @Watch('quoteHash')
-  onQuoteHashChange (val: string) {
-    this.formData.quoteTokenHash = val
-  }
   @Watch('currentTradePair')
   onTradePairChange (val?: TradePair) {
     if (val) {
@@ -101,6 +93,14 @@ export default class CreateBaseQuoteComponent extends mixins(BaseQuote) {
         this.$router.replace(`/pool/add/${targetBaseSymbol}/${targetQuoteSymbol}`)
       })
     }
+  }
+  @Watch('base')
+  onBaseChange() {
+    this.formData.baseTokenHash = this.baseHash
+  }
+  @Watch('quote')
+  onQuoteChange() {
+    this.formData.quoteTokenHash = this.quoteHash
   }
   async mounted () {
     this.formData.baseTokenHash = this.baseHash
