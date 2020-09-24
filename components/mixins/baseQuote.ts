@@ -1,25 +1,25 @@
 import { Route } from 'vue-router'
-import { Vue, Component, Watch } from 'vue-property-decorator'
-import { TokenDisplay, TradePair } from '~/types'
+import { mixins } from 'vue-class-component'
+import { Component, Watch } from 'vue-property-decorator'
+import TradePairInfo from './tradePairInfo'
 
 // You can declare mixins as the same style as components.
 @Component
-export default class BaseQuote extends Vue {
+export default class BaseQuote extends mixins(TradePairInfo) {
   pathRoot: string = '/pool/create'
   pathFallbackNoExists?: string
   base?: string
   quote?: string
   // ---- Computed --
-  get availableTokens () { return this.$store.getters['tokens/normalTokens'] as TokenDisplay[] }
   get baseHash () { return this.base ? this.getTokenHash(this.base) : '' }
-  set baseHash (value) {
+  set baseHash (value: string) {
     const symbol = this.getTokenSymbol(value)
     if (symbol && symbol !== this.base) {
       this.$router.replace(`${this.pathRoot}/${symbol}${this.quote ? '/' + this.quote : ''}`)
     }
   }
   get quoteHash () { return this.quote ? this.getTokenHash(this.quote) : '' }
-  set quoteHash (value) {
+  set quoteHash (value: string) {
     const symbol = this.getTokenSymbol(value)
     if (symbol && symbol !== this.quote) {
       this.$router.replace(`${this.pathRoot}/${this.base}/${symbol}`)
@@ -31,13 +31,9 @@ export default class BaseQuote extends Vue {
     await this.updateRoute(route)
   }
   // ------ Methods ---
-  getTokenSymbol (hash: string) {
-    const found = this.availableTokens.find(one => one.hash === hash)
-    return found ? found.symbol.trim() : ''
-  }
-  getTokenHash (symbol: string) {
-    const found = this.availableTokens.find(one => one.symbol.trim() === symbol)
-    return found ? found.hash : ''
+  isNumber (value?: string) {
+    const parsed = parseFloat(value || '')
+    return !isNaN(parsed) && `${parsed}` === value
   }
   async updateRoute (route: Route) {
     const base = route.params.base
@@ -58,14 +54,6 @@ export default class BaseQuote extends Vue {
         return this.$router.replace(this.pathFallbackNoExists)
       }
     }
-    this.$store.commit('pool/SET_CURRENT_TRADE_PAIR', -1)
-    // 检测是否为已存在的 TradePair
-    if (this.base && this.quote) {
-      await this.$store.dispatch('pool/fetchTradePairByBaseQuote', {
-        base: this.baseHash,
-        quote: this.quoteHash,
-        isSetCurrent: true
-      })
-    }
+    this.fetchCurrentTradePair(this.base, this.quote)
   }
 }

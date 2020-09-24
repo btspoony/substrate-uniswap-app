@@ -10,6 +10,7 @@
       placeholder="0.0"
       :prefix-icon="icon"
       v-model="amountValue"
+      :disabled="disabled"
     >
       <el-select
         slot="append"
@@ -40,6 +41,7 @@ export default class TokenInputComponent extends Vue {
   @Prop(String) readonly icon!: string
   @Prop({ default: 'Item' }) readonly itemLabel!: string
   @Prop(String) readonly itemProp!: string
+  @Prop({ default: false }) readonly disabled!: boolean
   // ---- Computed --
   // NOTHING
   // ---- Hooks --

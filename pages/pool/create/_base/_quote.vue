@@ -63,7 +63,6 @@ export default class CreateBaseQuoteComponent extends mixins(BaseQuote) {
     quoteAmount: ''
   }
   // ---- Computed --
-  get currentTradePair () { return this.$store.getters['pool/currentTradePair'] as TradePair }
   get availableBaseTokens () {
     if (!this.quote) return this.availableTokens
     return this.availableTokens.filter(one => one.symbol.trim() !== this.quote)
@@ -106,11 +105,6 @@ export default class CreateBaseQuoteComponent extends mixins(BaseQuote) {
   async mounted () {
     this.formData.baseTokenHash = this.baseHash
     this.formData.quoteTokenHash = this.quoteHash
-  }
-  // ------ Methods ---
-  isNumber (value?: string) {
-    const parsed = parseFloat(value || '')
-    return !isNaN(parsed) && `${parsed}` === value
   }
   // ------ UI Handler ---
   async onTryExecute () {
