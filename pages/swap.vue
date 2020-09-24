@@ -51,7 +51,9 @@
 </template>
 
 <script lang="ts">
-import { Vue, Component } from 'vue-property-decorator'
+import { mixins } from 'vue-class-component'
+import { Component } from 'vue-property-decorator'
+import TradePairInfo from '~/components/mixins/tradePairInfo'
 import { TokenDisplay, TradePair } from '~/types'
 import * as pool from '~/store/pool'
 
@@ -65,21 +67,34 @@ type FormData = {
 @Component({
   async fetch (ctx) {
     await ctx.store.dispatch('tokens/queryAllTokens')
+    await ctx.store.dispatch('pool/queryTradePairs')
   }
 })
-export default class PageComponent extends Vue {
+export default class SwapPageComponent extends mixins(TradePairInfo) {
   formData: FormData = {}
+  isBuy: boolean = true
   // ---- Computed --
-  get availableTokens () { return this.$store.getters['tokens/normalTokens'] as TokenDisplay[] }
+  get allTradePairs () { return (this.$store.state.pool as pool.ModuleState).tradePairs }
   get availableFromTokens () {
     if (!this.formData.toTokenHash) return this.availableTokens
     const toHash = this.formData.toTokenHash
     return this.availableTokens.filter(one => one.hash !== toHash)
   }
   get availableToTokens () {
-    if (!this.formData.fromTokenHash) return this.availableTokens
-    const toHash = this.formData.fromTokenHash
-    return this.availableTokens.filter(one => one.hash !== toHash)
+    const availableHashs = this.allTradePairs.reduce((result, curr) => {
+      const quoteHash = curr.quote.toHex()
+      if (result.includes(quoteHash)) return result
+      if (!this.formData.fromTokenHash) {
+        result.push(quoteHash)
+      } else {
+        const baseHash = curr.base.toHex()
+        if (this.formData.fromTokenHash === baseHash) {
+          result.push(quoteHash)
+        }
+      }
+      return result
+    }, [] as string[])
+    return this.availableTokens.filter(one => availableHashs.includes(one.hash))
   }
   get isFromAmountValid () { return this.isNumber(this.formData.fromAmount) }
   get isToAmountValid () { return this.isNumber(this.formData.toAmount) }
@@ -99,6 +114,10 @@ export default class PageComponent extends Vue {
   // ---- Hooks --
   async mounted () {
     this.resetData()
+    if (this.availableTokens.length > 0) {
+      const firstToken = this.availableTokens[0]
+      this.formData.fromTokenHash = firstToken.hash
+    }
   }
   // ------ Methods ---
   resetData () {
