@@ -40,7 +40,9 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import { User, TokenDisplay, TokenBalances } from '~/types'
 import { ModuleState } from '~/store/tokens'
 
+let singletonPromise: Promise<any> | undefined
 type TableItem = { token: TokenDisplay, balances?: TokenBalances }
+
 @Component
 export default class TokenTableComponent extends Vue {
   @Prop(Boolean) readonly isBalanceDetailed!: boolean
@@ -87,8 +89,10 @@ export default class TokenTableComponent extends Vue {
     if (tokens.length === 0) return
     // 当前地址
     const address = this.currentUser.address
+    if (singletonPromise) return singletonPromise
+    // 确保同时只有一个 Promise
+    singletonPromise = Promise.all(tokens.map(async token => {
     // 批量获取 balance
-    const balances = await Promise.all(tokens.map(async token => {
       const result: TableItem = { token }
       try {
         result.balances = (await this.$store.dispatch('tokens/queryTokenBalance', {
@@ -97,9 +101,11 @@ export default class TokenTableComponent extends Vue {
         })) as TokenBalances
       } catch (err) { console.error(err) }
       return result
-    }))
-    // 重置 tokenData
-    this.list = balances
+    })).then(balances => {
+      // 重置 tokenData
+      this.list = balances
+      singletonPromise = undefined
+    }).catch(err => (console.error(err)))
   }
 }
 </script>

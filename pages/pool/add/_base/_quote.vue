@@ -9,7 +9,7 @@
       v-if="currentTradePairBalances"
       label="Information"
     >
-      <span><strong>Owned: </strong>{{ currentTradePairBalances.free }}</span>
+      <span><strong>Owned: </strong>{{ currentTradePairBalances.free.toNumber() / 1e8 }}</span>
     </el-form-item>
     <ItemTokenInput
       icon="el-icon-sold-out"
@@ -117,11 +117,17 @@ export default class AddBaseQuoteComponent extends mixins(BaseQuote) {
   @Watch('baseHash')
   onBaseHashChange (val: string) {
     this.formData.baseTokenHash = val
-    this.ensureExists()
   }
   @Watch('quoteHash')
   onQuoteHashChange (val: string) {
     this.formData.quoteTokenHash = val
+  }
+  @Watch('base')
+  onBaseChange() {
+    this.ensureExists()
+  }
+  @Watch('quote')
+  onQuoteChange() {
     this.ensureExists()
   }
   async mounted () {
@@ -142,12 +148,14 @@ export default class AddBaseQuoteComponent extends mixins(BaseQuote) {
     const isOk = await form.validate()
     if (!isOk) return
     try {
-      await this.$store.dispatch('pool/createNewTradePair', {
-        base: this.formData.baseTokenHash,
-        quote: this.formData.quoteTokenHash,
-        baseAmount: Math.floor(parseFloat(this.formData.baseAmount || '0') * 1e8),
-        quoteAmount: Math.floor(parseFloat(this.formData.quoteAmount || '0') * 1e8)
-      })
+      const requestBody: pool.PayloadAddLiquidity = {
+        hash: this.currentTradePair.tp_hash.toHex(),
+        baseAmount: Math.floor(parseFloat(this.formData.baseAmount || '0') * 1e8)
+      }
+      if (this.currentTradePair.liquidity_token_issued_amount.toNumber() === 0) {
+        requestBody.quoteAmount = Math.floor(parseFloat(this.formData.quoteAmount || '0') * 1e8)
+      }
+      await this.$store.dispatch('pool/addLiquidityToTradePair', requestBody)
     } catch (err) { console.error(err) }
     form.clearValidate()
     this.$router.replace('/pool')

@@ -28,6 +28,14 @@ export const mutations: MutationTree<ModuleState> = {
   SET_TRADE_PAIR_LENGTH: (state, payload: { len: number }) => (state.tradePairLength = payload.len)
 }
 
+export type PayloadFetchTradePairByBaseQuote = { base: string, quote: string, isSetCurrent?: boolean }
+export type PayloadCreateTradePair = { base: string, quote: string, baseAmount: number, quoteAmount: number }
+export type PayloadAddLiquidity = { hash: string, baseAmount: number, quoteAmount?: number }
+export type PayloadRemoveLiquidity = { hash: string, ltAmount: number }
+export type PayloadBuy = { hash: string, baseAmount: number }
+export type PayloadSell = { hash: string, quoteAmount: number }
+
+
 export const actions: ActionTree<ModuleState, RootState> = {
   /**
    * 查询全部交易对
@@ -70,7 +78,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
   /**
    * 获取交易对
    */
-  async fetchTradePairByBaseQuote (ctx, payload: { base: string, quote: string, isSetCurrent?: boolean }) {
+  async fetchTradePairByBaseQuote (ctx, payload: PayloadFetchTradePairByBaseQuote) {
     let hash = (await this.$api.query.swapModule.tradePairsHashByBaseQuote([payload.base, payload.quote])) as Option<Hash>
     if (hash.isNone) {
       hash = (await this.$api.query.swapModule.tradePairsHashByBaseQuote([payload.quote, payload.base])) as Option<Hash>
@@ -94,7 +102,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
    * 创建交易对
    * 由 管理员 执行
    */
-  async createNewTradePair (ctx, payload: { base: string, quote: string, baseAmount: number, quoteAmount: number }) {
+  async createNewTradePair (ctx, payload: PayloadCreateTradePair) {
     await this.$ensureApiConnected()
     // 构建交易
     // const extrinsic = this.$api.tx.swapModule.createTradePair(payload.base, payload.quote)
@@ -116,48 +124,64 @@ export const actions: ActionTree<ModuleState, RootState> = {
    * 添加流动性
    * 由 持币人 执行
    */
-  async addLiquidityToTradePair (ctx, payload: { hash: string, baseAmount: number }) {
+  async addLiquidityToTradePair (ctx, payload: PayloadAddLiquidity) {
     await this.$ensureApiConnected()
     // 构建交易
-    const extrinsic = this.$api.tx.swapModule.addLiquidity(payload.hash, payload.baseAmount)
+    const extrinsic = this.$api.tx.swapModule.addLiquidity(payload.hash, payload.baseAmount, payload.quoteAmount || null)
     // 交易签名并发送
     const keypair = (ctx.rootGetters['currentUser'] as User)?.keypair
-    await extrinsic.signAndSend(keypair, this.$txSendingCallback())
+    await extrinsic.signAndSend(keypair, this.$txSendingCallback(async result => {
+      if (result.isInBlock) {
+        await ctx.commit('tokens/SET_BALANCE_DIRTY', true, { root: true })
+      }
+    }))
   },
   /**
    * 移出流动性
    * 由 流动性供应商 执行
    */
-  async removeLiquidityFromTradePair (ctx, payload: { hash: string, ltAmount: number }) {
+  async removeLiquidityFromTradePair (ctx, payload: PayloadRemoveLiquidity) {
     await this.$ensureApiConnected()
     // 构建交易
     const extrinsic = this.$api.tx.swapModule.removeLiquidity(payload.hash, payload.ltAmount)
     // 交易签名并发送
     const keypair = (ctx.rootGetters['currentUser'] as User)?.keypair
-    await extrinsic.signAndSend(keypair, this.$txSendingCallback())
+    await extrinsic.signAndSend(keypair, this.$txSendingCallback(async result => {
+      if (result.isInBlock) {
+        await ctx.commit('tokens/SET_BALANCE_DIRTY', true, { root: true })
+      }
+    }))
   },
   /**
    * 从交易池中以买方操作 Swap
    * 由 持币人 执行
    */
-  async buyTokenInTradePair (ctx, payload: { hash: string, baseAmount: number }) {
+  async buyTokenInTradePair (ctx, payload: PayloadBuy) {
     await this.$ensureApiConnected()
     // 构建交易
     const extrinsic = this.$api.tx.swapModule.swapBuy(payload.hash, payload.baseAmount)
     // 交易签名并发送
     const keypair = (ctx.rootGetters['currentUser'] as User)?.keypair
-    await extrinsic.signAndSend(keypair, this.$txSendingCallback())
+    await extrinsic.signAndSend(keypair, this.$txSendingCallback(async result => {
+      if (result.isInBlock) {
+        await ctx.commit('tokens/SET_BALANCE_DIRTY', true, { root: true })
+      }
+    }))
   },
   /**
    * 从交易池中以卖方操作 Swap
    * 由 持币人 执行
    */
-  async sellTokenInTradePair (ctx, payload: { hash: string, quoteAmount: number }) {
+  async sellTokenInTradePair (ctx, payload: PayloadSell) {
     await this.$ensureApiConnected()
     // 构建交易
     const extrinsic = this.$api.tx.swapModule.swapSell(payload.hash, payload.quoteAmount)
     // 交易签名并发送
     const keypair = (ctx.rootGetters['currentUser'] as User)?.keypair
-    await extrinsic.signAndSend(keypair, this.$txSendingCallback())
+    await extrinsic.signAndSend(keypair, this.$txSendingCallback(async result => {
+      if (result.isInBlock) {
+        await ctx.commit('tokens/SET_BALANCE_DIRTY', true, { root: true })
+      }
+    }))
   }
 }

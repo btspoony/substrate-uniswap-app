@@ -38,10 +38,12 @@ export default class BaseQuote extends mixins(TradePairInfo) {
   async updateRoute (route: Route) {
     const base = route.params.base
     const quote = route.params.quote
+    let baseToUpdate = this.base
+    let quoteToUpdate = this.quote
     if (base !== undefined && this.base !== base) {
       const found = this.availableTokens.find(one => one.symbol.trim() === base.trim())
       if (found) {
-        this.base = base.trim()
+        baseToUpdate = base.trim()
       } else if (this.pathFallbackNoExists) {
         return this.$router.replace(this.pathFallbackNoExists)
       }
@@ -49,11 +51,13 @@ export default class BaseQuote extends mixins(TradePairInfo) {
     if (quote !== undefined && this.quote !== quote) {
       const found = this.availableTokens.find(one => one.symbol.trim() === quote.trim())
       if (found) {
-        this.quote = quote.trim()
+        quoteToUpdate = quote.trim()
       } else if (this.pathFallbackNoExists) {
         return this.$router.replace(this.pathFallbackNoExists)
       }
     }
-    this.fetchCurrentTradePair(this.base, this.quote)
+    await this.fetchCurrentTradePair(baseToUpdate, quoteToUpdate)
+    this.base = baseToUpdate
+    this.quote = quoteToUpdate
   }
 }
