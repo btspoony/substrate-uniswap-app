@@ -5,6 +5,12 @@
     label-position="top"
     label-width="80px"
   >
+    <el-form-item
+      v-if="currentTradePairBalances"
+      label="Information"
+    >
+      <span><strong>Owned: </strong>{{ currentTradePairBalances.free }}</span>
+    </el-form-item>
     <ItemTokenInput
       icon="el-icon-sold-out"
       item-label="Base"
