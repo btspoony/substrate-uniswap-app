@@ -97,12 +97,11 @@ export const actions: ActionTree<ModuleState, RootState> = {
   async createNewTradePair (ctx, payload: { base: string, quote: string, baseAmount: number, quoteAmount: number }) {
     await this.$ensureApiConnected()
     // 构建交易
-    // console.log(this.$api.tx.utility)
-    const extrinsic = this.$api.tx.swapModule.createTradePair(payload.base, payload.quote)
-    // const extrinsic = this.$api.tx.utility.batch([
-    //   this.$api.tx.swapModule.createTradePair(payload.base, payload.quote),
-    //   this.$api.tx.swapModule.addLiquidityByBaseQuote(payload.base, payload.quote, payload.baseAmount, payload.quoteAmount)
-    // ])
+    // const extrinsic = this.$api.tx.swapModule.createTradePair(payload.base, payload.quote)
+    const extrinsic = this.$api.tx.utility.batch([
+      this.$api.tx.swapModule.createTradePair(payload.base, payload.quote),
+      this.$api.tx.swapModule.addLiquidityByBaseQuote(payload.base, payload.quote, payload.baseAmount, payload.quoteAmount)
+    ])
     // 交易签名并发送
     const keypair = (ctx.rootGetters['currentUser'] as User)?.keypair
     await extrinsic.signAndSend(keypair, this.$txSendingCallback(async result => {

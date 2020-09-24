@@ -47,11 +47,12 @@ const substratePlugin: Plugin = async (context, inject) => {
        */
       if (isInBlock) {
         for (const evt of events) {
-          const isFailed = evt.event.section === 'system' && evt.event.method === 'ExtrinsicFailed'
+          const isFailed = (evt.event.section === 'system' && evt.event.method === 'ExtrinsicFailed') ||
+                          (evt.event.section === 'utility' && evt.event.method === 'BatchInterrupted')
           await new Promise(resolve => setTimeout(resolve, 0.3))
           context.app.$eventBus.$emit('txmsg', {
             title: evt.event.method,
-            type: !isFailed ? 'success' : 'failed'
+            type: !isFailed ? 'success' : 'error'
           })
         }
       }

@@ -31,9 +31,6 @@ export default class BaseQuote extends Vue {
   async onRouteChange (route: Route) {
     await this.updateRoute(route)
   }
-  async mounted () {
-    await this.updateRoute(this.$route)
-  }
   // ------ Methods ---
   getTokenSymbol (hash: string) {
     const found = this.availableTokens.find(one => one.hash === hash)
@@ -71,7 +68,10 @@ export default class BaseQuote extends Vue {
       if (tradePair) {
         const targetBaseSymbol = this.getTokenSymbol(tradePair.base.toHex())
         const targetQuoteSymbol = this.getTokenSymbol(tradePair.quote.toHex())
-        return this.$router.replace(`${this.pathFallbackExists}/${targetBaseSymbol}/${targetQuoteSymbol}`)
+        // 下一Tick 转路由
+        Vue.nextTick(() => {
+          this.$router.replace(`${this.pathFallbackExists}/${targetBaseSymbol}/${targetQuoteSymbol}`)
+        })
       }
     }
   }

@@ -45,13 +45,6 @@ import BaseQuote from '~/components/mixins/baseQuote'
 import { TokenDisplay, TradePair } from '~/types'
 import * as pool from '~/store/pool'
 
-type FormData = {
-  baseTokenHash?: string,
-  baseAmount?: string,
-  quoteTokenHash?: string,
-  quoteAmount?: string
-}
-
 @Component({
   asyncData ({ params }) {
     return {
@@ -64,9 +57,13 @@ type FormData = {
   }
 })
 export default class BaseQuoteComponent extends mixins(BaseQuote) {
-  formData: FormData = {}
+  formData = {
+    baseTokenHash: '',
+    baseAmount: '',
+    quoteTokenHash: '',
+    quoteAmount: ''
+  }
   // ---- Computed --
-  get allTradePairs () { return (this.$store.state.pool as pool.ModuleState).tradePairs }
   get availableBaseTokens () {
     if (!this.quote) return this.availableTokens
     return this.availableTokens.filter(one => one.symbol.trim() !== this.quote)
@@ -87,7 +84,18 @@ export default class BaseQuoteComponent extends mixins(BaseQuote) {
       (!this.isButtonEnabled ? 'Input an amount' : 'Create TradePair'))
   }
   // ---- Hooks --
-  // NOTHING
+  @Watch('baseHash')
+  onBaseHashChange (val: string) {
+    this.formData.baseTokenHash = val
+  }
+  @Watch('quoteHash')
+  onQuoteHashChange (val: string) {
+    this.formData.quoteTokenHash = val
+  }
+  async mounted () {
+    this.formData.baseTokenHash = this.baseHash
+    this.formData.quoteTokenHash = this.quoteHash
+  }
   // ------ Methods ---
   isNumber (value?: string) {
     const parsed = parseFloat(value || '')
