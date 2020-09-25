@@ -1,12 +1,12 @@
 <template>
   <el-dialog
     :visible.sync="visible"
-    :title="`Remove Liquidity -${currentTradePairSymbol}`"
-    width="600px">
+    :title="`Remove Liquidity - ${currentTradePairBaseSymbol}/${currentTradePairQuoteSymbol}`"
+    width="640px">
     <el-form
       ref="form"
       :model="dialogData"
-      label-width="100px"
+      label-position="top"
     >
       <ItemCurrentTradePairInfo />
       <el-form-item

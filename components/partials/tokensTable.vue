@@ -21,7 +21,7 @@
           <el-col :span="18">
             <template v-if="isBalanceDetailed">
               <p>Free: {{ scope.row.balances.free | toBalance }}</p>
-              <p>Frozen: {{ scope.row.balances.frozen | toBalance }}</p>
+              <!-- <p>Frozen: {{ scope.row.balances.frozen | toBalance }}</p> -->
             </template>
             <p v-else>{{ scope.row.balances.free | toBalance }}</p>
           </el-col>

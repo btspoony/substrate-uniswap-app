@@ -12,7 +12,6 @@
           ref="form"
           :model="formData"
           label-position="top"
-          label-width="80px"
         >
           <ItemCurrentTradePairInfo />
           <ItemTokenInput
@@ -56,7 +55,7 @@
 
 <script lang="ts">
 import { mixins } from 'vue-class-component'
-import { Component, Watch } from 'vue-property-decorator'
+import { Vue, Component, Watch } from 'vue-property-decorator'
 import TradePairInfo from '~/components/mixins/tradePairInfo'
 import { TokenDisplay, TradePair } from '~/types'
 import * as pool from '~/store/pool'
@@ -75,7 +74,12 @@ type FormData = {
   }
 })
 export default class SwapPageComponent extends mixins(TradePairInfo) {
-  formData: FormData = {}
+  formData: FormData = {
+    baseTokenHash: '',
+    baseAmount: '',
+    quoteTokenHash: '',
+    quoteAmount: ''
+  }
   isBuy: boolean = true
   // ---- Computed --
   get allTradePairs () { return (this.$store.state.pool as pool.ModuleState).tradePairs }
@@ -104,19 +108,24 @@ export default class SwapPageComponent extends mixins(TradePairInfo) {
     }
     return allValues
   }
+  get isPoolEnough () {
+    return this.currentTradePair &&
+      this.poolQuoteBalance > 0 &&
+      this.poolBaseBalance > 0
+  }
   get isSwapButtonEnabled () {
     return this.currentTradePair &&
+      this.isPoolEnough &&
       this.formData.baseTokenHash !== '' &&
       this.formData.quoteTokenHash !== '' &&
       this.isNumber(this.formData.baseAmount) && this.toNoDecimalNumber(this.formData.baseAmount) > 0
       this.isNumber(this.formData.quoteAmount) && this.toNoDecimalNumber(this.formData.quoteAmount) > 0
   }
   get swapButtonText () {
-    const noFromToken = this.formData.baseTokenHash === ''
-    const noToToken = this.formData.quoteTokenHash === ''
-    return noFromToken ? 'Select a token(Base)' :
-      (noToToken || !this.currentTradePair ? 'Select a token(Quote)' :
-      (!this.isNumber(this.formData.baseAmount) || !this.isNumber(this.formData.quoteAmount) ? 'Input an amount' : 'Swap'))
+    return this.formData.baseTokenHash === '' ? 'Select a token(Base)' :
+      (this.formData.quoteTokenHash === '' || !this.currentTradePair ? 'Select a token(Quote)' :
+      (!this.isPoolEnough ? 'No Liquidity for the pair' :
+      (!this.isNumber(this.formData.baseAmount) || !this.isNumber(this.formData.quoteAmount) ? 'Input an amount' : 'Swap')))
   }
   // ---- Watch --
   @Watch('formData.baseTokenHash')
@@ -129,28 +138,21 @@ export default class SwapPageComponent extends mixins(TradePairInfo) {
   }
   // ---- Hooks --
   async mounted () {
-    this.resetData()
     if (this.availableTokens.length > 0) {
       const firstToken = this.availableTokens[0]
       this.formData.baseTokenHash = firstToken.hash
     }
   }
   // ------ Methods ---
-  resetData () {
-    this.clearCurrentTradePair()
-    this.formData = {
-      baseTokenHash: '',
-      baseAmount: '',
-      quoteTokenHash: '',
-      quoteAmount: ''
-    }
-  }
   async tryUpdateCurrentTradePair (baseHash?: string, quoteHash?: string) {
     if (baseHash && quoteHash) {
       await this.fetchCurrentTradePairByHash(baseHash, quoteHash)
     } else {
       this.clearCurrentTradePair()
     }
+    Vue.nextTick(() => {
+      (this.$refs['form'] as any).clearValidate()
+    })
   }
   // ------ UI Handler ---
   onChangeFromTo () {

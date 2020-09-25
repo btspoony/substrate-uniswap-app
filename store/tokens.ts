@@ -118,15 +118,17 @@ export const actions: ActionTree<ModuleState, RootState> = {
   async queryTokenBalance (ctx, payload: { tokenHash: string, address: string }) {
     await this.$ensureApiConnected()
     // 查询代币
-    const results = await Promise.all([
-      this.$api.query.tokenModule.balanceOf([payload.address, payload.tokenHash]),
-      this.$api.query.tokenModule.freeBalanceOf([payload.address, payload.tokenHash]),
-      this.$api.query.tokenModule.freezedBalanceOf([payload.address, payload.tokenHash])
-    ])
+    // const results = await Promise.all([
+      // this.$api.query.tokenModule.freeBalanceOf([payload.address, payload.tokenHash]),
+      // this.$api.query.tokenModule.freezedBalanceOf([payload.address, payload.tokenHash])
+      // this.$api.query.tokenModule.balanceOf([payload.address, payload.tokenHash]),
+    // ])
+    const freeBalance = await this.$api.query.tokenModule.freeBalanceOf([payload.address, payload.tokenHash])
     return {
-      all: results[0],
-      free: results[1],
-      frozen: results[2]
+      // all: results[0],
+      // free: results[1],
+      // frozen: results[2]
+      free: freeBalance
     } as TokenBalances
   }
 }

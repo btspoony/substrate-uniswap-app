@@ -3,13 +3,17 @@ import { User, TokenDisplay, TradePair, TokenBalances } from '~/types'
 
 let singletonPromise: Promise<any> | undefined
 const currentTradeState: {
+  lt?: TokenBalances,
   base?: TokenBalances,
   quote?: TokenBalances,
-  lt?: TokenBalances
+  poolBase?: TokenBalances,
+  poolQuote?: TokenBalances
 } = Vue.observable({
   base: undefined,
   quote: undefined,
-  lt: undefined
+  lt: undefined,
+  poolBase: undefined,
+  poolQuote: undefined
 })
 
 // You can declare mixins as the same style as components.
@@ -30,9 +34,11 @@ export default class TradePairInfo extends Vue {
     return this.currentTradePair ? this.getTokenSymbol(this.currentTradePair.quote.toHex()) : 'NoQuote'
   }
   get currentTradePairBalances () { return currentTradeState.lt }
-  get ownedLTBalance () { return currentTradeState.lt ? currentTradeState.lt.free.toNumber() / 1e8 : 0 }
-  get ownedBaseBalance () { return currentTradeState.base ? currentTradeState.base.free.toNumber() / 1e8 : 0 }
-  get ownedQuoteBalance () { return currentTradeState.quote ? currentTradeState.quote.free.toNumber() / 1e8 : 0 }
+  get ownedLTBalance () { return this.toBalance(currentTradeState.lt) }
+  get ownedBaseBalance () { return this.toBalance(currentTradeState.base) }
+  get ownedQuoteBalance () { return this.toBalance(currentTradeState.quote) }
+  get poolBaseBalance () { return this.toBalance(currentTradeState.poolBase) }
+  get poolQuoteBalance () { return this.toBalance(currentTradeState.poolQuote) }
   // ---- Hooks --
   @Watch('currentUser')
   async onCurrentUserChange() {
@@ -61,6 +67,9 @@ export default class TradePairInfo extends Vue {
     } else {
       return -1
     }
+  }
+  toBalance (value?: TokenBalances) {
+    return value ? value.free.toNumber() / 1e8 : 0
   }
   getTokenSymbol (hash: string) {
     const found = this.availableTokens.find(one => one.hash === hash)
@@ -121,12 +130,22 @@ export default class TradePairInfo extends Vue {
       this.$store.dispatch('tokens/queryTokenBalance', {
         tokenHash: this.currentTradePair.quote.toHex(),
         address: this.currentUser.address
+      }),
+      this.$store.dispatch('tokens/queryTokenBalance', {
+        tokenHash: this.currentTradePair.base.toHex(),
+        address: this.currentTradePair.account.toString()
+      }),
+      this.$store.dispatch('tokens/queryTokenBalance', {
+        tokenHash: this.currentTradePair.quote.toHex(),
+        address: this.currentTradePair.account.toString()
       })
     ])
     .then((all: TokenBalances[]) => {
       currentTradeState.lt = all[0]
       currentTradeState.base = all[1]
       currentTradeState.quote = all[2]
+      currentTradeState.poolBase = all[3]
+      currentTradeState.poolQuote = all[4]
       singletonPromise = undefined
     }).catch(err => (console.error(err)))
   }

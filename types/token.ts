@@ -33,7 +33,7 @@ export type TokenDisplay = {
 }
 
 export type TokenBalances = {
-  all: Balance
   free: Balance
-  frozen: Balance
+  // all: Balance
+  // frozen: Balance
 }

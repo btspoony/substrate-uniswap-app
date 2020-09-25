@@ -3,7 +3,6 @@
     ref="form"
     :model="formData"
     label-position="top"
-    label-width="80px"
   >
     <ItemCurrentTradePairInfo />
     <ItemTokenInput
