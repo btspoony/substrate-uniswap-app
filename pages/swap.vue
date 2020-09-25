@@ -21,6 +21,7 @@
             :amount.sync="formData.baseAmount"
             :hash.sync="formData.baseTokenHash"
             :tokens="availableFromTokens"
+            :amountMax="ownedBaseBalance"
           />
           <el-row>
             <el-col class="align-center" :span="8" :offset="8">
@@ -38,6 +39,7 @@
             :amount.sync="formData.quoteAmount"
             :hash.sync="formData.quoteTokenHash"
             :tokens="availableToTokens"
+            :amountMax="ownedQuoteBalance"
           />
           <el-form-item>
             <el-button
@@ -74,6 +76,7 @@ type FormData = {
   }
 })
 export default class SwapPageComponent extends mixins(TradePairInfo) {
+  internalChanging = false
   formData: FormData = {
     baseTokenHash: '',
     baseAmount: '',
@@ -113,19 +116,26 @@ export default class SwapPageComponent extends mixins(TradePairInfo) {
       this.poolQuoteBalance > 0 &&
       this.poolBaseBalance > 0
   }
+  get isBaseEnough () {
+    const value = this.formatDecimal(this.formData.baseAmount)
+    return value > 0 && value <= this.ownedBaseBalance
+  }
+  get isQuoteEnough () {
+    const value = this.formatDecimal(this.formData.quoteAmount)
+    return value > 0 && value <= this.ownedQuoteBalance
+  }
   get isSwapButtonEnabled () {
     return this.currentTradePair &&
       this.formData.baseTokenHash !== '' &&
       this.formData.quoteTokenHash !== '' &&
       this.isPoolEnough &&
-      this.isNumber(this.formData.baseAmount) && this.toNoDecimalNumber(this.formData.baseAmount) > 0 &&
-      this.isNumber(this.formData.quoteAmount) && this.toNoDecimalNumber(this.formData.quoteAmount) > 0
+      this.isBaseEnough && this.isQuoteEnough
   }
   get swapButtonText () {
     return this.formData.baseTokenHash === '' ? 'Select a token(Base)' :
       (this.formData.quoteTokenHash === '' || !this.currentTradePair ? 'Select a token(Quote)' :
       (!this.isPoolEnough ? 'No Liquidity for the pair' :
-      (!this.isNumber(this.formData.baseAmount) || !this.isNumber(this.formData.quoteAmount) ? 'Input an amount' : 'Swap')))
+      (!this.isSwapButtonEnabled ? 'Input valid amount' : 'Swap')))
   }
   // ---- Watch --
   @Watch('formData.baseTokenHash')
@@ -135,6 +145,26 @@ export default class SwapPageComponent extends mixins(TradePairInfo) {
   @Watch('formData.quoteTokenHash')
   async onFormDataQuoteChange (newVal: string) {
     await this.tryUpdateCurrentTradePair(this.formData.baseTokenHash, newVal)
+  }
+  @Watch('formData.baseAmount')
+  onBaseAmountChagne(newVal: string) {
+    if (this.internalChanging) return
+    if (!this.isNumber(newVal)) return
+    const value = this.formatDecimal(newVal)
+    const quoteAmount = this.calculateCurrentSwapBuyQuote(value)
+    this.internalChanging = true
+    this.formData.quoteAmount = `${quoteAmount}`
+    Vue.nextTick(() => this.internalChanging = false)
+  }
+  @Watch('formData.quoteAmount')
+  onQuoteAmountChagne(newVal: string) {
+    if (this.internalChanging) return
+    if (!this.isNumber(newVal)) return
+    const value = this.formatDecimal(newVal)
+    const baseAmount = this.calculateCurrentSwapSellQuote(value)
+    this.internalChanging = true
+    this.formData.baseAmount = `${baseAmount}`
+    Vue.nextTick(() => this.internalChanging = false)
   }
   // ---- Hooks --
   async mounted () {

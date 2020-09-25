@@ -78,7 +78,7 @@ export default class TradePairInfo extends Vue {
   toBalance (value?: TokenBalances) {
     return value ? value.free.toNumber() / 1e8 : 0
   }
-  formatDecimal (value: number | string) {
+  formatDecimal (value: number | string | undefined) {
     return Math.floor(this.toNoDecimalNumber(value)) / 1e8
   }
   getTokenSymbol (hash: string) {
@@ -93,13 +93,33 @@ export default class TradePairInfo extends Vue {
    * 通过 base 计算 swap quote
    */
   calculateCurrentSwapBuyQuote (baseAmount: number) {
-    return 1
+    // Substrate源码
+    // let quote_amount = (pool_quote_amount * (pool_base_amount + base_amount)
+    // - pool_quote_amount * pool_base_amount)
+    // / (pool_base_amount + base_amount);
+    const poolQuoteAmount = this.poolQuoteBalance
+    const poolBaseAmount = this.poolBaseBalance
+    if (poolBaseAmount <= 0 || poolQuoteAmount <= 0) return 0
+    // 计算并返回
+    return (poolQuoteAmount * (poolBaseAmount + baseAmount)
+      - poolQuoteAmount * poolBaseAmount)
+      / (poolBaseAmount + baseAmount)
   }
   /**
    * 通过 quote 计算 swap base
    */
   calculateCurrentSwapSellQuote (quoteAmount: number) {
-    return 1
+    // Substrate源码
+    // let base_amount = (pool_base_amount * (pool_quote_amount + quote_amount)
+    // - pool_quote_amount * pool_base_amount)
+    // / (pool_quote_amount + quote_amount);
+    const poolQuoteAmount = this.poolQuoteBalance
+    const poolBaseAmount = this.poolBaseBalance
+    if (poolBaseAmount <= 0 || poolQuoteAmount <= 0) return 0
+    // 计算并返回
+    return (poolQuoteAmount * (poolQuoteAmount + quoteAmount)
+      - poolQuoteAmount * poolBaseAmount)
+      / (poolQuoteAmount + quoteAmount)
   }
   /**
    * 通过 base 计算 add liguidity 时需要加的 quote
