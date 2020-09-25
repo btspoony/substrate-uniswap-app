@@ -130,7 +130,8 @@ export default class SwapPageComponent extends mixins(TradePairInfo) {
       this.formData.baseTokenHash !== '' &&
       this.formData.quoteTokenHash !== '' &&
       this.isPoolEnough &&
-      this.isBaseEnough && this.isQuoteEnough
+      ((this.isBuy && this.isBaseEnough) ||
+      (!this.isBuy && this.isQuoteEnough))
   }
   get swapButtonText () {
     return this.formData.baseTokenHash === '' ? 'Select a token(Base)' :
@@ -181,17 +182,22 @@ export default class SwapPageComponent extends mixins(TradePairInfo) {
     } else {
       this.clearCurrentTradePair()
     }
-    Vue.nextTick(() => {
-      (this.$refs['form'] as any).clearValidate()
-    })
+    Vue.nextTick(() => this.clearValidate())
+  }
+  clearValidate () {
+    (this.$refs['form'] as any).clearValidate()
+  }
+  async doValidate () {
+    return (this.$refs['form'] as any).validate()
   }
   // ------ UI Handler ---
   onChangeFromTo () {
     this.isBuy = !this.isBuy
+    this.clearValidate()
+    Vue.nextTick(() => this.doValidate())
   }
   async onTrySwap () {
-    const form = this.$refs['form'] as any
-    const isOk = await form.validate()
+    const isOk = await this.doValidate()
     if (!isOk) return
     // 验证通过，调用请求
     try {
