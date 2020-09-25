@@ -9,9 +9,10 @@
       icon="el-icon-sold-out"
       item-label="Base"
       item-prop="baseAmount"
+      :tokens="availableBaseTokens"
       :amount.sync="formData.baseAmount"
       :hash.sync="baseHash"
-      :tokens="availableBaseTokens"
+      :amountMax="ownedBaseBalance"
     />
     <el-row>
       <el-col class="align-center" :span="8" :offset="8">
@@ -22,9 +23,10 @@
       icon="el-icon-sell"
       item-label="Quote"
       item-prop="quoteAmount"
+      :tokens="availableQuoteTokens"
       :amount.sync="formData.quoteAmount"
       :hash.sync="quoteHash"
-      :tokens="availableQuoteTokens"
+      :amountMax="ownedQuoteBalance"
     />
     <el-form-item>
       <el-button
@@ -56,6 +58,7 @@ import * as pool from '~/store/pool'
   }
 })
 export default class AddBaseQuoteComponent extends mixins(BaseQuote) {
+  internalChanging = false
   formData = {
     baseTokenHash: '',
     baseAmount: '',
@@ -96,18 +99,25 @@ export default class AddBaseQuoteComponent extends mixins(BaseQuote) {
     }, [] as string[])
     return this.availableTokens.filter(one => availableHashs.includes(one.hash))
   }
+  get isBaseEnough () {
+    const value = this.formatDecimal(this.formData.baseAmount)
+    return value > 0 && value <= this.ownedBaseBalance
+  }
+  get isQuoteEnough () {
+    const value = this.formatDecimal(this.formData.quoteAmount)
+    return value > 0 && value <= this.ownedQuoteBalance
+  }
   get isButtonEnabled () {
     return !!this.formData.baseTokenHash &&
       !!this.formData.quoteTokenHash &&
-      this.isNumber(this.formData.baseAmount) &&
-      this.isNumber(this.formData.quoteAmount)
+      this.isBaseEnough && this.isQuoteEnough
   }
   get buttonText () {
     return !this.base ? 'Select a token(Base)' :
       (!this.quote ? 'Select a token(Quote)' :
-      (!this.isButtonEnabled ? 'Input an amount' : 'Add Liquidity'))
+      (!this.isButtonEnabled ? 'Input valid amount' : 'Add Liquidity'))
   }
-  // ---- Hooks --
+  // ---- Watch --
   @Watch('base')
   onBaseChange() {
     this.formData.baseTokenHash = this.baseHash
@@ -118,6 +128,27 @@ export default class AddBaseQuoteComponent extends mixins(BaseQuote) {
     this.formData.quoteTokenHash = this.quoteHash
     this.ensureExists()
   }
+  @Watch('formData.baseAmount')
+  onBaseAmountChagne(newVal: string) {
+    if (this.internalChanging) return
+    if (!this.isNumber(newVal)) return
+    const value = this.formatDecimal(newVal)
+    const quoteAmount = this.calculateAddLiquidityQuote(value)
+    this.internalChanging = true
+    this.formData.quoteAmount = `${quoteAmount}`
+    Vue.nextTick(() => this.internalChanging = false)
+  }
+  @Watch('formData.quoteAmount')
+  onQuoteAmountChagne(newVal: string) {
+    if (this.internalChanging) return
+    if (!this.isNumber(newVal)) return
+    const value = this.formatDecimal(newVal)
+    const baseAmount = this.calculateAddLiquidityBase(value)
+    this.internalChanging = true
+    this.formData.baseAmount = `${baseAmount}`
+    Vue.nextTick(() => this.internalChanging = false)
+  }
+  // ---- Hooks --
   async mounted () {
     this.formData.baseTokenHash = this.baseHash
     this.formData.quoteTokenHash = this.quoteHash

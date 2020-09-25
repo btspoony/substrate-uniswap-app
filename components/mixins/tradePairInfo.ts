@@ -43,7 +43,7 @@ export default class TradePairInfo extends Vue {
     const quoteValue = this.poolQuoteBalance
     const baseValue = this.poolBaseBalance
     if (baseValue === 0 || quoteValue === 0) return 0
-    return Math.floor((quoteValue / baseValue) * 1e8) / 1e8
+    return this.formatDecimal(quoteValue / baseValue)
   }
   // ---- Hooks --
   @Watch('currentUser')
@@ -66,7 +66,8 @@ export default class TradePairInfo extends Vue {
     const parsed = parseFloat(value || '')
     return !isNaN(parsed) && `${parsed}` === value
   }
-  toNoDecimalNumber (value?: string) {
+  toNoDecimalNumber (value: string | number | undefined) {
+    if (typeof value === 'number') return value * 1e8
     const parsed = parseFloat(value || '')
     if (!isNaN(parsed)) {
       return Math.floor(parsed * 1e8)
@@ -77,6 +78,9 @@ export default class TradePairInfo extends Vue {
   toBalance (value?: TokenBalances) {
     return value ? value.free.toNumber() / 1e8 : 0
   }
+  formatDecimal (value: number | string) {
+    return Math.floor(this.toNoDecimalNumber(value)) / 1e8
+  }
   getTokenSymbol (hash: string) {
     const found = this.availableTokens.find(one => one.hash === hash)
     return found ? found.symbol.trim() : ''
@@ -84,6 +88,35 @@ export default class TradePairInfo extends Vue {
   getTokenHash (symbol: string) {
     const found = this.availableTokens.find(one => one.symbol.trim() === symbol)
     return found ? found.hash : ''
+  }
+  /**
+   * 通过 base 计算 swap quote
+   */
+  calculateCurrentSwapBuyQuote (baseAmount: number) {
+    return 1
+  }
+  /**
+   * 通过 quote 计算 swap base
+   */
+  calculateCurrentSwapSellQuote (quoteAmount: number) {
+    return 1
+  }
+  /**
+   * 通过 base 计算 add liguidity 时需要加的 quote
+   */
+  calculateAddLiquidityQuote (baseAmount: number) {
+    const price = this.poolPrice
+    if (price === 0) return 0
+    return this.formatDecimal(price * baseAmount)
+  }
+  /**
+   *
+   * 通过 quote 计算 add liguidity 时需要加的 base
+   */
+  calculateAddLiquidityBase (quoteAmount: number) {
+    const price = this.poolPrice
+    if (price === 0) return 0
+    return this.formatDecimal(quoteAmount / price)
   }
   /**
    * 获取并设置当前 TradePair

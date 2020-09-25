@@ -41,6 +41,7 @@ export default class TokenInputComponent extends Vue {
   @Prop(String) readonly icon!: string
   @Prop({ default: 'Item' }) readonly itemLabel!: string
   @Prop(String) readonly itemProp!: string
+  @Prop({ default: Number.MAX_SAFE_INTEGER }) readonly amountMax!: number
   @Prop({ default: false }) readonly disabled!: boolean
   // ---- Computed --
   // NOTHING
@@ -50,13 +51,16 @@ export default class TokenInputComponent extends Vue {
   }
   // ---- Methods --
   isValueNumber (rule: any, value: any, callback?: Function) {
-    let invalid
-    try {
-      const to = parseFloat(value || '')
-      invalid = isNaN(to) || `${to}` !== value
-    } catch (err) {}
+    const parsed = parseFloat(value || '')
+    const invalid = isNaN(parsed) || `${parsed}` !== value
     if (callback !== undefined) {
-      callback(invalid ? new Error('Please input number.') : undefined)
+      let result = undefined
+      if (invalid) {
+        result = new Error('Please input number.')
+      } else if (parsed > this.amountMax) {
+        result = new Error('Amount is greater then max value.')
+      }
+      callback(result)
     } else {
       return !invalid
     }
