@@ -3,12 +3,12 @@
     v-if="currentTradePairBalances"
     label="Information"
   >
-    <el-row :gutter="8">
-      <el-col :span="4">
+    <el-row :gutter="4">
+      <el-col :span="2">
         <strong>Pool</strong>
       </el-col>
-      <el-col :span="6">
-        <span><strong>Price: </strong>{{ 1 }}</span>
+      <el-col :span="8">
+        <span><strong>Price: </strong>{{ poolPrice }}</span>
       </el-col>
       <el-col :span="7">
         <span><strong>{{ currentTradePairBaseSymbol }}: </strong>{{ poolBaseBalance }}</span>
@@ -17,11 +17,11 @@
         <span><strong>{{ currentTradePairQuoteSymbol }}: </strong>{{ poolQuoteBalance }}</span>
       </el-col>
     </el-row>
-    <el-row :gutter="8">
-      <el-col :span="4">
-        <strong>Owned</strong>
+    <el-row :gutter="4">
+      <el-col :span="2">
+        <strong>Your</strong>
       </el-col>
-      <el-col :span="6">
+      <el-col :span="8">
         <span><strong>LT: </strong>{{ ownedLTBalance }}</span>
       </el-col>
       <el-col :span="7">

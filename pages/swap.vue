@@ -115,10 +115,10 @@ export default class SwapPageComponent extends mixins(TradePairInfo) {
   }
   get isSwapButtonEnabled () {
     return this.currentTradePair &&
-      this.isPoolEnough &&
       this.formData.baseTokenHash !== '' &&
       this.formData.quoteTokenHash !== '' &&
-      this.isNumber(this.formData.baseAmount) && this.toNoDecimalNumber(this.formData.baseAmount) > 0
+      this.isPoolEnough &&
+      this.isNumber(this.formData.baseAmount) && this.toNoDecimalNumber(this.formData.baseAmount) > 0 &&
       this.isNumber(this.formData.quoteAmount) && this.toNoDecimalNumber(this.formData.quoteAmount) > 0
   }
   get swapButtonText () {

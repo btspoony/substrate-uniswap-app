@@ -39,6 +39,12 @@ export default class TradePairInfo extends Vue {
   get ownedQuoteBalance () { return this.toBalance(currentTradeState.quote) }
   get poolBaseBalance () { return this.toBalance(currentTradeState.poolBase) }
   get poolQuoteBalance () { return this.toBalance(currentTradeState.poolQuote) }
+  get poolPrice () {
+    const quoteValue = this.poolQuoteBalance
+    const baseValue = this.poolBaseBalance
+    if (baseValue === 0 || quoteValue === 0) return 0
+    return Math.floor((quoteValue / baseValue) * 1e8) / 1e8
+  }
   // ---- Hooks --
   @Watch('currentUser')
   async onCurrentUserChange() {
