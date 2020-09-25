@@ -54,6 +54,14 @@ export default class TradePairInfo extends Vue {
     const parsed = parseFloat(value || '')
     return !isNaN(parsed) && `${parsed}` === value
   }
+  toNoDecimalNumber (value?: string) {
+    const parsed = parseFloat(value || '')
+    if (!isNaN(parsed)) {
+      return Math.floor(parsed * 1e8)
+    } else {
+      return -1
+    }
+  }
   getTokenSymbol (hash: string) {
     const found = this.availableTokens.find(one => one.hash === hash)
     return found ? found.symbol.trim() : ''

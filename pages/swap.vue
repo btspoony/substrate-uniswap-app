@@ -108,8 +108,8 @@ export default class SwapPageComponent extends mixins(TradePairInfo) {
     return this.currentTradePair &&
       this.formData.baseTokenHash !== '' &&
       this.formData.quoteTokenHash !== '' &&
-      this.isNumber(this.formData.baseAmount) &&
-      this.isNumber(this.formData.quoteAmount)
+      this.isNumber(this.formData.baseAmount) && this.toNoDecimalNumber(this.formData.baseAmount) > 0
+      this.isNumber(this.formData.quoteAmount) && this.toNoDecimalNumber(this.formData.quoteAmount) > 0
   }
   get swapButtonText () {
     const noFromToken = this.formData.baseTokenHash === ''
@@ -165,13 +165,13 @@ export default class SwapPageComponent extends mixins(TradePairInfo) {
       if (this.isBuy) {
         const requestBody: pool.PayloadBuy = {
           hash: this.currentTradePair.tp_hash.toHex(),
-          baseAmount: Math.floor(parseFloat(this.formData.baseAmount || '0') * 1e8)
+          baseAmount: this.toNoDecimalNumber(this.formData.baseAmount)
         }
         await this.$store.dispatch('pool/buyTokenInTradePair', requestBody)
       } else {
         const requestBody: pool.PayloadSell = {
           hash: this.currentTradePair.tp_hash.toHex(),
-          quoteAmount: Math.floor(parseFloat(this.formData.quoteAmount || '0') * 1e8)
+          quoteAmount: this.toNoDecimalNumber(this.formData.quoteAmount)
         }
         await this.$store.dispatch('pool/sellTokenInTradePair', requestBody)
       }
