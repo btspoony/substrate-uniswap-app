@@ -48,7 +48,7 @@ import { TokenDisplay, TradePair } from '~/types'
 import * as pool from '~/store/pool'
 
 @Component({
-  asyncData ({ params }) {
+  async asyncData ({ params }) {
     return {
       base: params.base,
       quote: params.quote,
@@ -60,9 +60,7 @@ import * as pool from '~/store/pool'
 export default class AddBaseQuoteComponent extends mixins(BaseQuote) {
   internalChanging = false
   formData = {
-    baseTokenHash: '',
     baseAmount: '',
-    quoteTokenHash: '',
     quoteAmount: ''
   }
   // ---- Computed --
@@ -108,8 +106,9 @@ export default class AddBaseQuoteComponent extends mixins(BaseQuote) {
     return value > 0 && value <= this.ownedQuoteBalance
   }
   get isButtonEnabled () {
-    return !!this.formData.baseTokenHash &&
-      !!this.formData.quoteTokenHash &&
+    return !this.internalChanging &&
+      !!this.baseHash &&
+      !!this.quoteHash &&
       this.isBaseEnough && this.isQuoteEnough
   }
   get buttonText () {
@@ -119,13 +118,11 @@ export default class AddBaseQuoteComponent extends mixins(BaseQuote) {
   }
   // ---- Watch --
   @Watch('base')
-  onBaseChange() {
-    this.formData.baseTokenHash = this.baseHash
+  onBaseChange(val: string) {
     this.ensureExists()
   }
   @Watch('quote')
-  onQuoteChange() {
-    this.formData.quoteTokenHash = this.quoteHash
+  onQuoteChange(val: string) {
     this.ensureExists()
   }
   @Watch('formData.baseAmount')
@@ -152,8 +149,7 @@ export default class AddBaseQuoteComponent extends mixins(BaseQuote) {
   }
   // ---- Hooks --
   async mounted () {
-    this.formData.baseTokenHash = this.baseHash
-    this.formData.quoteTokenHash = this.quoteHash
+    // NOTHING
   }
   // ------ Methods --
   async ensureExists () {

@@ -125,7 +125,8 @@ export default class SwapPageComponent extends mixins(TradePairInfo) {
     return value > 0 && value <= this.ownedQuoteBalance
   }
   get isSwapButtonEnabled () {
-    return this.currentTradePair &&
+    return !this.internalChanging &&
+      this.currentTradePair &&
       this.formData.baseTokenHash !== '' &&
       this.formData.quoteTokenHash !== '' &&
       this.isPoolEnough &&

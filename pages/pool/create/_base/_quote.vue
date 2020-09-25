@@ -57,9 +57,7 @@ import * as pool from '~/store/pool'
 })
 export default class CreateBaseQuoteComponent extends mixins(BaseQuote) {
   formData = {
-    baseTokenHash: '',
     baseAmount: '',
-    quoteTokenHash: '',
     quoteAmount: ''
   }
   // ---- Computed --
@@ -72,8 +70,8 @@ export default class CreateBaseQuoteComponent extends mixins(BaseQuote) {
     return this.availableTokens.filter(one => one.symbol.trim() !== this.base)
   }
   get isButtonEnabled () {
-    return !!this.formData.baseTokenHash &&
-      !!this.formData.quoteTokenHash &&
+    return !!this.baseHash &&
+      !!this.quoteHash &&
       this.isNumber(this.formData.baseAmount) &&
       this.isNumber(this.formData.quoteAmount)
   }
@@ -94,17 +92,8 @@ export default class CreateBaseQuoteComponent extends mixins(BaseQuote) {
       })
     }
   }
-  @Watch('base')
-  onBaseChange() {
-    this.formData.baseTokenHash = this.baseHash
-  }
-  @Watch('quote')
-  onQuoteChange() {
-    this.formData.quoteTokenHash = this.quoteHash
-  }
   async mounted () {
-    this.formData.baseTokenHash = this.baseHash
-    this.formData.quoteTokenHash = this.quoteHash
+    // NOTHING
   }
   // ------ UI Handler ---
   async onTryExecute () {
@@ -113,8 +102,8 @@ export default class CreateBaseQuoteComponent extends mixins(BaseQuote) {
     if (!isOk) return
     try {
       await this.$store.dispatch('pool/createNewTradePair', {
-        base: this.formData.baseTokenHash,
-        quote: this.formData.quoteTokenHash,
+        base: this.baseHash,
+        quote: this.quoteHash,
         baseAmount: Math.floor(parseFloat(this.formData.baseAmount || '0') * 1e8),
         quoteAmount: Math.floor(parseFloat(this.formData.quoteAmount || '0') * 1e8)
       })

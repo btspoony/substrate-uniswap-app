@@ -31,6 +31,9 @@ export default class BaseQuote extends mixins(TradePairInfo) {
   onRouteChange (route: Route) {
     this.updateRoute(route)
   }
+  mounted () {
+    this.updateRoute(this.$route)
+  }
   // ------ Methods ---
   updateRoute (route: Route) {
     const base = route.params.base
