@@ -1,6 +1,6 @@
 import { Route } from 'vue-router'
 import { mixins } from 'vue-class-component'
-import { Component, Watch } from 'vue-property-decorator'
+import { Vue, Component, Watch } from 'vue-property-decorator'
 import TradePairInfo from './tradePairInfo'
 
 // You can declare mixins as the same style as components.
@@ -10,6 +10,7 @@ export default class BaseQuote extends mixins(TradePairInfo) {
   pathFallbackNoExists?: string
   base?: string
   quote?: string
+  fetchingPromise?: Promise<any>
   // ---- Computed --
   get baseHash () { return this.base ? this.getTokenHash(this.base) : '' }
   set baseHash (value: string) {
@@ -27,11 +28,11 @@ export default class BaseQuote extends mixins(TradePairInfo) {
   }
   // ---- Hooks --
   @Watch('$route')
-  async onRouteChange (route: Route) {
-    await this.updateRoute(route)
+  onRouteChange (route: Route) {
+    this.updateRoute(route)
   }
   // ------ Methods ---
-  async updateRoute (route: Route) {
+  updateRoute (route: Route) {
     const base = route.params.base
     const quote = route.params.quote
     let baseToUpdate = this.base
@@ -52,8 +53,8 @@ export default class BaseQuote extends mixins(TradePairInfo) {
         return this.$router.replace(this.pathFallbackNoExists)
       }
     }
-    await this.fetchCurrentTradePair(baseToUpdate, quoteToUpdate)
-    this.base = baseToUpdate
-    this.quote = quoteToUpdate
+    // 获取信息
+    this.fetchingPromise = this.fetchCurrentTradePair(baseToUpdate, quoteToUpdate)
+      .then(resolve => { this.fetchingPromise = undefined })
   }
 }

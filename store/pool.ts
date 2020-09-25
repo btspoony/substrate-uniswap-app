@@ -5,7 +5,7 @@ import { RootState } from '~/store'
 import { TradePair, User } from '~/types'
 
 export const state = () => ({
-  currentIndex: 0,
+  currentIndex: -1,
   tradePairs: [] as TradePair[],
   tradePairLength: -1
 })

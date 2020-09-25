@@ -154,7 +154,8 @@ export default class AddBaseQuoteComponent extends mixins(BaseQuote) {
     this.formData.quoteTokenHash = this.quoteHash
   }
   // ------ Methods --
-  ensureExists () {
+  async ensureExists () {
+    if (this.fetchingPromise) await this.fetchingPromise
     if (!this.currentTradePair && this.base && this.quote) {
       // 下一Tick 转路由
       Vue.nextTick(() => {
