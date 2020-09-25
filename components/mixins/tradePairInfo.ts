@@ -43,8 +43,11 @@ export default class TradePairInfo extends Vue {
     await this.refreshTradePairBalances()
   }
   @Watch('isBalanceDirty')
-  async onBalanceDirty() {
-    await this.refreshTradePairBalances()
+  async onBalanceDirty(newVal: boolean) {
+    if (newVal) {
+      await this.refreshTradePairBalances()
+      this.$store.commit('tokens/SET_BALANCE_DIRTY', false)
+    }
   }
   // ------ Methods ---
   isNumber (value?: string) {

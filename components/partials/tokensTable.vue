@@ -53,7 +53,7 @@ export default class TokenTableComponent extends Vue {
   get currentUser () { return this.$store.getters['currentUser'] as User }
   get allTokenLength () { return (this.$store.state.tokens as ModuleState).tokenLength }
   get availableTokens () { return this.$store.getters[`tokens/${this.tokenKey}`] as TokenDisplay[] }
-  get balanceDirty () { return (this.$store.state.tokens as ModuleState).balanceDirty }
+  get isBalanceDirty () { return (this.$store.state.tokens as ModuleState).balanceDirty }
   // ---- Watch --
   @Watch('currentUser')
   async onCurrentUserChange() {
@@ -69,7 +69,7 @@ export default class TokenTableComponent extends Vue {
   async onTokensChange(tokens: TokenDisplay[], oldTokens: TokenDisplay[]) {
     await this.queryTokenBalances(tokens)
   }
-  @Watch('balanceDirty')
+  @Watch('isBalanceDirty')
   async onBalanceDirtyChange(newVal: boolean) {
     if (newVal) {
       await this.queryTokenBalances(this.availableTokens)
