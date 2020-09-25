@@ -132,6 +132,7 @@ export default class AddBaseQuoteComponent extends mixins(BaseQuote) {
   onBaseAmountChagne(newVal: string) {
     if (this.internalChanging) return
     if (!this.isNumber(newVal)) return
+    if (this.poolPrice <= 0) return
     const value = this.formatDecimal(newVal)
     const quoteAmount = this.calculateAddLiquidityQuote(value)
     this.internalChanging = true
@@ -142,6 +143,7 @@ export default class AddBaseQuoteComponent extends mixins(BaseQuote) {
   onQuoteAmountChagne(newVal: string) {
     if (this.internalChanging) return
     if (!this.isNumber(newVal)) return
+    if (this.poolPrice <= 0) return
     const value = this.formatDecimal(newVal)
     const baseAmount = this.calculateAddLiquidityBase(value)
     this.internalChanging = true
