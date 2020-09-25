@@ -82,6 +82,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
    */
   async createNewToken (ctx, payload: { symbol: string, totalSupply: number }) {
     await this.$ensureApiConnected()
+    console.log('createNewToken', payload)
     const u8array = new TextEncoder().encode(payload.symbol)
     // 构建交易
     const extrinsic = this.$api.tx.tokenModule.issue(u8array.buffer, payload.totalSupply)
@@ -100,6 +101,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
    */
   async transferToken (ctx, payload: { tokenHash: string, to: string, amount: number }) {
     await this.$ensureApiConnected()
+    console.log('transferToken', payload)
     // 构建交易
     const extrinsic = this.$api.tx.tokenModule.transfer(payload.tokenHash, payload.to, payload.amount, null)
     // 交易签名并发送

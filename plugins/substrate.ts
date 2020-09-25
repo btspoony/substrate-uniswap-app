@@ -38,9 +38,8 @@ const substratePlugin: Plugin = async (context, inject) => {
         txHash = status.asInBlock.toHex()
       } else if (isFinalized) {
         txHash = status.asFinalized.toHex()
-      } else {
-        console.log('Status of extrinsic: ' + status.type)
       }
+      console.log('Status of extrinsic: ' + status.type)
       context.app.$eventBus.$emit('txmsg', { type: 'info', title: status.type, message: txHash })
       /**
        * inblock 时发出提示
@@ -50,6 +49,7 @@ const substratePlugin: Plugin = async (context, inject) => {
           const isFailed = (evt.event.section === 'system' && evt.event.method === 'ExtrinsicFailed') ||
                           (evt.event.section === 'utility' && evt.event.method === 'BatchInterrupted')
           await new Promise(resolve => setTimeout(resolve, 0.3))
+          console.log(`Event - ${evt.event.section}.${evt.event.method}: `, JSON.stringify(evt.event.data))
           context.app.$eventBus.$emit('txmsg', {
             title: evt.event.method,
             type: !isFailed ? 'success' : 'error'

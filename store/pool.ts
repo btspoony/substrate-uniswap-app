@@ -104,6 +104,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
    */
   async createNewTradePair (ctx, payload: PayloadCreateTradePair) {
     await this.$ensureApiConnected()
+    console.log('createNewTradePair', payload)
     // 构建交易
     // const extrinsic = this.$api.tx.swapModule.createTradePair(payload.base, payload.quote)
     const extrinsic = this.$api.tx.utility.batch([
@@ -126,6 +127,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
    */
   async addLiquidityToTradePair (ctx, payload: PayloadAddLiquidity) {
     await this.$ensureApiConnected()
+    console.log('addLiquidityToTradePair', payload)
     // 构建交易
     const extrinsic = this.$api.tx.swapModule.addLiquidity(payload.hash, payload.baseAmount, payload.quoteAmount || null)
     // 交易签名并发送
@@ -142,6 +144,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
    */
   async removeLiquidityFromTradePair (ctx, payload: PayloadRemoveLiquidity) {
     await this.$ensureApiConnected()
+    console.log('removeLiquidityFromTradePair', payload)
     // 构建交易
     const extrinsic = this.$api.tx.swapModule.removeLiquidity(payload.hash, payload.ltAmount)
     // 交易签名并发送
@@ -158,6 +161,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
    */
   async buyTokenInTradePair (ctx, payload: PayloadBuy) {
     await this.$ensureApiConnected()
+    console.log('buyTokenInTradePair', payload)
     // 构建交易
     const extrinsic = this.$api.tx.swapModule.swapBuy(payload.hash, payload.baseAmount)
     // 交易签名并发送
@@ -174,6 +178,7 @@ export const actions: ActionTree<ModuleState, RootState> = {
    */
   async sellTokenInTradePair (ctx, payload: PayloadSell) {
     await this.$ensureApiConnected()
+    console.log('sellTokenInTradePair', payload)
     // 构建交易
     const extrinsic = this.$api.tx.swapModule.swapSell(payload.hash, payload.quoteAmount)
     // 交易签名并发送
