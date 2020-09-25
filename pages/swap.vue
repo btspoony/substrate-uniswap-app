@@ -16,12 +16,12 @@
           <ItemCurrentTradePairInfo />
           <ItemTokenInput
             icon="el-icon-sold-out"
-            :item-label="isBuy ? 'From' : 'To'"
+            :item-label="isBuy ? `From` : `To`"
             item-prop="baseAmount"
             :amount.sync="formData.baseAmount"
             :hash.sync="formData.baseTokenHash"
             :tokens="availableFromTokens"
-            :amountMax="ownedBaseBalance"
+            :amountMax="isBuy ? ownedBaseBalance : Number.MAX_SAFE_INTEGER"
           />
           <el-row>
             <el-col class="align-center" :span="8" :offset="8">
@@ -39,7 +39,7 @@
             :amount.sync="formData.quoteAmount"
             :hash.sync="formData.quoteTokenHash"
             :tokens="availableToTokens"
-            :amountMax="ownedQuoteBalance"
+            :amountMax="!isBuy ? ownedQuoteBalance : Number.MAX_SAFE_INTEGER"
           />
           <el-form-item>
             <el-button
